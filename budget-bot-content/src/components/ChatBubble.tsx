@@ -108,7 +108,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             fontSize: WA.fontMessage,
             lineHeight: 1.45,
             fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.35)',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.13)',
           }}
         >
           {visibleLines.map((line, i) =>

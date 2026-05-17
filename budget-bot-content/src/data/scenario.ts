@@ -74,7 +74,7 @@ export const scenario: Scenario = {
     {
       role: 'bot',
       lines: [
-        'lol okay let\'s see 👀',
+        'lol okay let\'s see 😅',
         '',
         'you\'ve spent $340 on clubs',
         'in the last 30 days alone.',

@@ -69,7 +69,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '8px 32px 16px',
+          padding: '14px 32px 20px',
         }}
       >
         <span
@@ -118,7 +118,7 @@ export const ChatList: React.FC<ChatListProps> = ({
               key={label}
               style={{
                 borderRadius: 32,
-                border: isActive ? 'none' : `1px solid #3a4a54`,
+                border: isActive ? 'none' : `1px solid #d1d7db`,
                 background: isActive ? WA.green : 'transparent',
                 padding: '10px 28px',
                 fontSize: WA.fontFilter,
@@ -161,13 +161,13 @@ export const ChatList: React.FC<ChatListProps> = ({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                padding: '18px 28px',
-                gap: 24,
+                padding: '34px 28px',
+                gap: 26,
                 transform: `translateY(${translateY}px)`,
                 opacity: itemOpacity,
                 position: 'relative',
                 background: isTapped && tapProgress > 0
-                  ? `rgba(0, 168, 132, ${interpolate(tapProgress, [0, 0.5, 1], [0, 0.25, 0.12])})`
+                  ? `rgba(37, 211, 102, ${interpolate(tapProgress, [0, 0.5, 1], [0, 0.25, 0.12])})`
                   : 'transparent',
               }}
             >
@@ -182,7 +182,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                     width: interpolate(tapProgress, [0, 1], [0, 180]),
                     height: interpolate(tapProgress, [0, 1], [0, 180]),
                     borderRadius: '50%',
-                    background: 'rgba(0, 168, 132, 0.35)',
+                    background: 'rgba(37, 211, 102, 0.35)',
                     opacity: interpolate(tapProgress, [0, 0.6, 1], [0.9, 0.4, 0]),
                     pointerEvents: 'none',
                   }}
@@ -199,7 +199,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 42,
+                  fontSize: 50,
                   fontWeight: 700,
                   color: '#fff',
                   flexShrink: 0,
@@ -209,7 +209,7 @@ export const ChatList: React.FC<ChatListProps> = ({
               </div>
 
               {/* Content */}
-              <div style={{ flex: 1, minWidth: 0, borderBottom: '1px solid #1e2d35', paddingBottom: 18 }}>
+              <div style={{ flex: 1, minWidth: 0, borderBottom: '1px solid #e9edef', paddingBottom: 22 }}>
                 <div
                   style={{
                     display: 'flex',
@@ -297,7 +297,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           justifyContent: 'space-around',
           alignItems: 'center',
           padding: '20px 16px 40px',
-          borderTop: '1px solid #2a3942',
+          borderTop: '1px solid #e9edef',
         }}
       >
         {NAV_TABS.map((tab) => {

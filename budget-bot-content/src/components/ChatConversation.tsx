@@ -164,7 +164,7 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
           flexDirection: 'column',
           justifyContent: 'flex-end',
           padding: '12px 0',
-          backgroundImage: `url(${staticFile('wa-bg-dark.png')})`,
+          backgroundImage: `url(${staticFile('wa-bg-light.png')})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

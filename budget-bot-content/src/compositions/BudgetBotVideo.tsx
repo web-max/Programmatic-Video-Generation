@@ -169,7 +169,7 @@ const Act3Screen: React.FC<Act3ScreenProps> = ({ enterFrame, replyFrame, theirRe
           flexDirection: 'column',
           justifyContent: 'flex-end',
           paddingBottom: 12,
-          backgroundImage: `url(${staticFile('wa-bg-dark.png')})`,
+          backgroundImage: `url(${staticFile('wa-bg-light.png')})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
