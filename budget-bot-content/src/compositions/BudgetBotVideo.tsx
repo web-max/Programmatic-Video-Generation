@@ -56,7 +56,8 @@ export const BudgetBotVideo: React.FC = () => {
         {showAct2 && (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column' }}>
             <ChatConversation
-              contactName="💰 Budget Bot"
+              contactName={scenario.contactName}
+              avatarSrc={scenario.contactAvatarSrc}
               messages={scenario.botConversation}
               enterFrame={ACT2_START}
               exitFrame={ACT2_EXIT}
@@ -109,7 +110,7 @@ const Act3Screen: React.FC<Act3ScreenProps> = ({ enterFrame, replyFrame, theirRe
       {/* Header */}
       <div style={{ height: Math.round(231 * SCALE), overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ transformOrigin: 'left top', transform: `scale(${SCALE})` }}>
-          <WhatsAppChatHeader name={scenario.resolution.replyTo} />
+          <WhatsAppChatHeader name={scenario.resolution.replyTo} avatarSrc={scenario.resolution.avatarSrc} />
         </div>
       </div>
 

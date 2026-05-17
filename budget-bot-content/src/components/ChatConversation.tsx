@@ -11,6 +11,7 @@ const SCALE = 1080 / 1536;
 
 interface ChatConversationProps {
   contactName: string;
+  avatarSrc?: string;
   messages: Message[];
   enterFrame: number;
   exitFrame: number;
@@ -21,6 +22,7 @@ interface ChatConversationProps {
 
 export const ChatConversation: React.FC<ChatConversationProps> = ({
   contactName,
+  avatarSrc,
   messages,
   enterFrame,
   exitFrame,
@@ -75,7 +77,7 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
       {/* Header */}
       <div style={{ height: Math.round(231 * SCALE), overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ transformOrigin: 'left top', transform: `scale(${SCALE})` }}>
-          <WhatsAppChatHeader name={contactName} />
+          <WhatsAppChatHeader name={contactName} avatarSrc={avatarSrc} />
         </div>
       </div>
 

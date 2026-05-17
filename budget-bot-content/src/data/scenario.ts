@@ -1,3 +1,5 @@
+import { makeEmojiAvatar } from '../utils/makeEmojiAvatar';
+
 export interface ChatListItem {
   name: string;
   avatar: string;
@@ -16,10 +18,13 @@ export interface Message {
 
 export interface Scenario {
   triggerContact: string;
+  contactName: string;
+  contactAvatarSrc?: string;
   chatList: ChatListItem[];
   botConversation: Message[];
   resolution: {
     replyTo: string;
+    avatarSrc?: string;
     userMessage: string;
     theirResponse: string;
   };
@@ -27,6 +32,8 @@ export interface Scenario {
 
 export const scenario: Scenario = {
   triggerContact: 'Big Mike 🍾',
+  contactName: '💰 Budget Bot',
+  contactAvatarSrc: makeEmojiAvatar('💰', '#25d366'),
   chatList: [
     {
       name: 'Mom',
@@ -129,6 +136,7 @@ export const scenario: Scenario = {
   ],
   resolution: {
     replyTo: 'Big Mike 🍾',
+    avatarSrc: makeEmojiAvatar('🍾', '#e67e22'),
     userMessage: "can't bro, saving up 💪",
     theirResponse: '...bro',
   },

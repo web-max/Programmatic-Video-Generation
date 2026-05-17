@@ -208,7 +208,7 @@ export const ChatList: React.FC<ChatListProps> = ({
 
       {/* Bottom nav */}
       <div style={{ height: Math.round(330 * SCALE), overflow: 'hidden', flexShrink: 0 }}>
-        <div style={{ transformOrigin: 'left top', transform: `scale(${SCALE})` }}>
+        <div style={{ width: 1536, transformOrigin: 'left top', transform: `scale(${SCALE})` }}>
           <WhatsAppBottomTabs chatCount={26} />
         </div>
       </div>

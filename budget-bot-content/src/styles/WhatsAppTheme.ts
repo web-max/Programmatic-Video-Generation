@@ -1,7 +1,7 @@
 // Calibrated from WhatsApp light-theme screenshots at 1080px-wide render (~2.6× real phone)
 export const WA = {
   // Backgrounds
-  bgChatList:        '#F7F5F3',
+  bgChatList:        '#ffffff',
   bgConversation:    '#EFEAE2',
   bgHeader:          '#ffffff',
   bgInput:           '#f0f2f5',
