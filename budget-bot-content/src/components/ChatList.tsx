@@ -2,6 +2,7 @@ import React from 'react';
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
 import { StatusBar } from './StatusBar';
 import { ChatListItem } from '../data/scenario';
+import { WA } from '../styles/WhatsAppTheme';
 
 interface ChatListProps {
   items: ChatListItem[];
@@ -11,15 +12,21 @@ interface ChatListProps {
 }
 
 const STAGGER = 8;
-const ENTER_START = 0;
+const FILTER_CHIPS = ['All', 'Unread', 'Favorites', 'Groups'];
+const NAV_TABS = ['Chats', 'Updates', 'Communities', 'Calls'];
 
-const AVATAR_COLORS: Record<string, string> = {
-  M: '#e57373',
-  R: '#64b5f6',
-  L: '#81c784',
-  B: '#ffb74d',
-  W: '#ba68c8',
-};
+// SVG icons
+const CameraIcon = () => (
+  <svg width="46" height="46" viewBox="0 0 24 24" fill={WA.textPrimary}>
+    <path d="M12 15.2A3.2 3.2 0 1 1 15.2 12 3.2 3.2 0 0 1 12 15.2zm8.8-9.6h-3.36l-1.68-2.4H8.24L6.56 5.6H3.2A2.4 2.4 0 0 0 .8 8v10.4a2.4 2.4 0 0 0 2.4 2.4h17.6a2.4 2.4 0 0 0 2.4-2.4V8a2.4 2.4 0 0 0-2.4-2.4z" />
+  </svg>
+);
+
+const ThreeDotsIcon = () => (
+  <svg width="40" height="40" viewBox="0 0 24 24" fill={WA.textPrimary}>
+    <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
+  </svg>
+);
 
 export const ChatList: React.FC<ChatListProps> = ({
   items,
@@ -35,7 +42,7 @@ export const ChatList: React.FC<ChatListProps> = ({
     extrapolateRight: 'clamp',
   });
   const containerOpacity = interpolate(exitProgress, [0, 1], [1, 0]);
-  const containerScale = interpolate(exitProgress, [0, 1], [1, 0.95]);
+  const containerScale = interpolate(exitProgress, [0, 1], [1, 0.97]);
 
   return (
     <div
@@ -43,9 +50,10 @@ export const ChatList: React.FC<ChatListProps> = ({
         flex: 1,
         display: 'flex',
         flexDirection: 'column',
-        background: '#0a0a0a',
+        background: WA.bgChatList,
         opacity: containerOpacity,
         transform: `scale(${containerScale})`,
+        height: '100%',
       }}
     >
       <StatusBar />
@@ -56,47 +64,79 @@ export const ChatList: React.FC<ChatListProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '16px 32px 24px',
-          borderBottom: '1px solid #1a1a1a',
+          padding: '8px 32px 16px',
         }}
       >
         <span
           style={{
-            fontSize: 52,
+            fontSize: WA.fontTitle,
             fontWeight: 700,
-            color: '#e9edef',
+            color: WA.green,
             fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
           }}
         >
-          Chats
+          WhatsApp
         </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
+          <CameraIcon />
+          <ThreeDotsIcon />
+        </div>
+      </div>
+
+      {/* Search bar */}
+      <div style={{ padding: '0 24px 16px' }}>
         <div
           style={{
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
-            background: '#00a884',
+            background: WA.bgSearchBar,
+            borderRadius: WA.inputRadius,
+            padding: '18px 32px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
+            gap: 16,
           }}
         >
-          <svg width="32" height="32" viewBox="0 0 24 24" fill="white">
-            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z" />
+          <svg width="34" height="34" viewBox="0 0 24 24" fill={WA.textSecondary}>
+            <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
           </svg>
+          <span style={{ fontSize: WA.fontPreview, color: WA.textSecondary }}>
+            Ask Meta AI or Search
+          </span>
         </div>
+      </div>
+
+      {/* Filter chips */}
+      <div style={{ display: 'flex', gap: 16, padding: '0 24px 20px', overflowX: 'hidden' }}>
+        {FILTER_CHIPS.map((label) => {
+          const isActive = label === 'All';
+          return (
+            <div
+              key={label}
+              style={{
+                borderRadius: 32,
+                border: isActive ? 'none' : `1px solid #3a4a54`,
+                background: isActive ? WA.green : 'transparent',
+                padding: '10px 28px',
+                fontSize: WA.fontFilter,
+                color: isActive ? '#fff' : WA.textSecondary,
+                whiteSpace: 'nowrap',
+                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+              }}
+            >
+              {label}
+            </div>
+          );
+        })}
       </div>
 
       {/* Chat items */}
       <div style={{ flex: 1, overflowY: 'hidden' }}>
         {items.map((item, index) => {
-          const itemEnter = ENTER_START + index * STAGGER;
+          const itemEnter = index * STAGGER;
           const enterProgress = spring({
             frame: frame - itemEnter,
             fps,
             config: { damping: 20, stiffness: 180, mass: 0.9 },
           });
-
           const translateY = interpolate(enterProgress, [0, 1], [60, 0]);
           const itemOpacity = interpolate(enterProgress, [0, 1], [0, 1]);
 
@@ -107,9 +147,8 @@ export const ChatList: React.FC<ChatListProps> = ({
                 extrapolateRight: 'clamp',
               })
             : 0;
-          const bgOpacity = isTapped
-            ? interpolate(tapProgress, [0, 0.5, 1], [0, 0.3, 0.15])
-            : 0;
+
+          const avatarBg = WA.avatarColors[item.avatar] ?? '#555';
 
           return (
             <div
@@ -117,16 +156,14 @@ export const ChatList: React.FC<ChatListProps> = ({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                padding: '20px 32px',
+                padding: '18px 28px',
                 gap: 24,
-                borderBottom: '1px solid #111',
                 transform: `translateY(${translateY}px)`,
                 opacity: itemOpacity,
                 position: 'relative',
-                background:
-                  isTapped && tapProgress > 0
-                    ? `rgba(0, 168, 132, ${bgOpacity})`
-                    : 'transparent',
+                background: isTapped && tapProgress > 0
+                  ? `rgba(0, 168, 132, ${interpolate(tapProgress, [0, 0.5, 1], [0, 0.25, 0.12])})`
+                  : 'transparent',
               }}
             >
               {/* Tap ripple */}
@@ -137,11 +174,11 @@ export const ChatList: React.FC<ChatListProps> = ({
                     left: 80,
                     top: '50%',
                     transform: 'translate(-50%, -50%)',
-                    width: interpolate(tapProgress, [0, 1], [0, 160]),
-                    height: interpolate(tapProgress, [0, 1], [0, 160]),
+                    width: interpolate(tapProgress, [0, 1], [0, 180]),
+                    height: interpolate(tapProgress, [0, 1], [0, 180]),
                     borderRadius: '50%',
-                    background: 'rgba(0, 168, 132, 0.4)',
-                    opacity: interpolate(tapProgress, [0, 0.6, 1], [0.8, 0.4, 0]),
+                    background: 'rgba(0, 168, 132, 0.35)',
+                    opacity: interpolate(tapProgress, [0, 0.6, 1], [0.9, 0.4, 0]),
                     pointerEvents: 'none',
                   }}
                 />
@@ -150,25 +187,24 @@ export const ChatList: React.FC<ChatListProps> = ({
               {/* Avatar */}
               <div
                 style={{
-                  width: 96,
-                  height: 96,
+                  width: WA.avatarLg,
+                  height: WA.avatarLg,
                   borderRadius: '50%',
-                  background: AVATAR_COLORS[item.avatar] || '#555',
+                  background: avatarBg,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: 38,
+                  fontSize: 42,
                   fontWeight: 700,
                   color: '#fff',
                   flexShrink: 0,
-                  fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
                 }}
               >
                 {item.avatar}
               </div>
 
               {/* Content */}
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ flex: 1, minWidth: 0, borderBottom: '1px solid #1e2d35', paddingBottom: 18 }}>
                 <div
                   style={{
                     display: 'flex',
@@ -179,18 +215,18 @@ export const ChatList: React.FC<ChatListProps> = ({
                 >
                   <span
                     style={{
-                      fontSize: 34,
+                      fontSize: WA.fontName,
                       fontWeight: 600,
-                      color: '#e9edef',
-                      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+                      color: WA.textPrimary,
                     }}
                   >
                     {item.name}
                   </span>
                   <span
                     style={{
-                      fontSize: 26,
-                      color: item.unread ? '#00a884' : '#8e9eab',
+                      fontSize: WA.fontTimestamp,
+                      color: item.unread ? WA.green : WA.textSecondary,
+                      flexShrink: 0,
                     }}
                   >
                     {item.time}
@@ -201,17 +237,16 @@ export const ChatList: React.FC<ChatListProps> = ({
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
+                    gap: 12,
                   }}
                 >
                   <span
                     style={{
-                      fontSize: 28,
-                      color: '#8e9eab',
+                      fontSize: WA.fontPreview,
+                      color: WA.textSecondary,
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap',
-                      maxWidth: 480,
-                      fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
                     }}
                   >
                     {item.preview}
@@ -219,17 +254,18 @@ export const ChatList: React.FC<ChatListProps> = ({
                   {item.unread && (
                     <div
                       style={{
-                        minWidth: 40,
-                        height: 40,
-                        borderRadius: 20,
-                        background: '#00a884',
+                        minWidth: 44,
+                        height: 44,
+                        borderRadius: 22,
+                        background: WA.green,
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontSize: 24,
+                        fontSize: WA.fontBadge,
                         fontWeight: 700,
                         color: '#fff',
                         padding: '0 8px',
+                        flexShrink: 0,
                       }}
                     >
                       {item.unread}
@@ -241,6 +277,64 @@ export const ChatList: React.FC<ChatListProps> = ({
           );
         })}
       </div>
+
+      {/* Bottom nav bar */}
+      <div
+        style={{
+          background: WA.bgHeader,
+          display: 'flex',
+          justifyContent: 'space-around',
+          alignItems: 'center',
+          padding: '20px 16px 40px',
+          borderTop: '1px solid #2a3942',
+        }}
+      >
+        {NAV_TABS.map((tab) => {
+          const isActive = tab === 'Chats';
+          return (
+            <div
+              key={tab}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 8,
+                color: isActive ? WA.green : WA.textSecondary,
+              }}
+            >
+              <NavIcon tab={tab} active={isActive} />
+              <span style={{ fontSize: WA.fontNav }}>{tab}</span>
+            </div>
+          );
+        })}
+      </div>
     </div>
+  );
+};
+
+const NavIcon: React.FC<{ tab: string; active: boolean }> = ({ tab, active }) => {
+  const color = active ? WA.green : WA.textSecondary;
+  const size = 52;
+  if (tab === 'Chats') return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
+    </svg>
+  );
+  if (tab === 'Updates') return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round">
+      <circle cx="12" cy="12" r="3" fill={color} />
+      <circle cx="12" cy="12" r="9" stroke={color} />
+    </svg>
+  );
+  if (tab === 'Communities') return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z" />
+    </svg>
+  );
+  // Calls
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" />
+    </svg>
   );
 };

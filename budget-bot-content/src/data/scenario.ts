@@ -10,6 +10,7 @@ export interface Message {
   role: 'user' | 'bot';
   lines: string[];
   delayFrames: number;
+  time?: string;
 }
 
 export interface Scenario {
@@ -65,6 +66,7 @@ export const scenario: Scenario = {
       role: 'user',
       lines: ['should I get bottles at the club tonight?'],
       delayFrames: 20,
+      time: '10:32 PM',
     },
     {
       role: 'bot',
@@ -89,16 +91,19 @@ export const scenario: Scenario = {
         'so. bottles?',
       ],
       delayFrames: 45,
+      time: '10:32 PM',
     },
     {
       role: 'user',
       lines: ['staying in tonight 🙏'],
       delayFrames: 30,
+      time: '10:33 PM',
     },
     {
       role: 'bot',
       lines: ['proud of you. that\'s $180 saved.', 'maybe 46 years now 📈'],
       delayFrames: 25,
+      time: '10:33 PM',
     },
   ],
   resolution: {
