@@ -5,6 +5,7 @@ import { ChatList } from '../components/ChatList';
 import { ChatConversation } from '../components/ChatConversation';
 import { ChatBubble } from '../components/ChatBubble';
 import { StatusBar } from '../components/StatusBar';
+import { WhatsAppComposer } from '../components/WhatsAppComposer';
 import { scenario } from '../data/scenario';
 import { WA } from '../styles/WhatsAppTheme';
 
@@ -203,48 +204,16 @@ const Act3Screen: React.FC<Act3ScreenProps> = ({ enterFrame, replyFrame, theirRe
       </div>
 
       {/* Input bar */}
-      <div
-        style={{
-          padding: '12px 20px 36px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 14,
-          background: WA.bgHeader,
-        }}
-      >
-        <svg width="44" height="44" viewBox="0 0 24 24" fill={WA.textSecondary}>
-          <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" />
-        </svg>
-        <div
-          style={{
-            flex: 1,
-            background: WA.bgInput,
-            borderRadius: WA.inputRadius,
-            padding: '18px 28px',
-            fontSize: WA.fontPreview,
-            color: WA.textPlaceholder,
-          }}
-        >
-          Message
-        </div>
-        <svg width="44" height="44" viewBox="0 0 24 24" fill={WA.textSecondary}>
-          <path d="M16.5 6v11.5c0 2.21-1.79 4-4 4s-4-1.79-4-4V5c0-1.38 1.12-2.5 2.5-2.5s2.5 1.12 2.5 2.5v10.5c0 .55-.45 1-1 1s-1-.45-1-1V6H10v9.5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V5c0-2.21-1.79-4-4-4S7 2.79 7 5v12.5c0 3.04 2.46 5.5 5.5 5.5s5.5-2.46 5.5-5.5V6h-1.5z" />
-        </svg>
-        <div
-          style={{
-            width: 80,
-            height: 80,
-            borderRadius: '50%',
-            background: WA.green,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-          }}
-        >
-          <svg width="38" height="38" viewBox="0 0 24 24" fill="white">
-            <path d="M12 14c1.66 0 2.99-1.34 2.99-3L15 5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z" />
-          </svg>
+      <div style={{ background: '#f4f0e8', paddingBottom: 36 }}>
+        <div style={{ height: 168, overflow: 'hidden' }}>
+          <WhatsAppComposer
+            style={{
+              width: 1536,
+              maxWidth: 'none',
+              transformOrigin: 'left top',
+              transform: `scale(${1080 / 1536})`,
+            }}
+          />
         </div>
       </div>
     </div>
