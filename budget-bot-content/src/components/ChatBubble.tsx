@@ -13,10 +13,10 @@ interface ChatBubbleProps {
 const RADIUS = 28;
 const TAIL_RADIUS = 10;
 // Inline spacer width appended to the last visible line so the absolute timestamp never overlaps.
-// Incoming: gap(32) + time_text(~120) + right_pos(12) - right_pad(26) = 138 → 150
-// Outgoing: adds ticks(34) + tick_gap(4) → 138 + 38 = 176 → 190
+// Incoming: time_text(~128) + right_pos(12) - right_pad(26) = 114 → 150
+// Outgoing: adds ticks(52) + tick_gap(4) → 114 + 56 = 170 → 200
 const INCOMING_META_SPACE = 150;
-const OUTGOING_META_SPACE = 190;
+const OUTGOING_META_SPACE = 200;
 
 export const ChatBubble: React.FC<ChatBubbleProps> = ({
   role,
@@ -104,7 +104,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             }
             return visibleLines.map((line, i) =>
               line === '' ? (
-                <div key={i} style={{ height: 6 }} />
+                <div key={i} style={{ height: 20 }} />
               ) : (
                 <div key={i}>
                   {line}
@@ -140,18 +140,18 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
               {time ?? ''}
             </span>
             {isUser && (
-              <svg width="34" height="16" viewBox="0 0 34 16" fill="none">
+              <svg width="52" height="33" viewBox="0 0 52 33" fill="none">
                 <path
-                  d="M1 8l4 4 7-7"
+                  d="M3 17l8 8L27 7"
                   stroke={WA.blue}
-                  strokeWidth="2.2"
+                  strokeWidth="5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
                 <path
-                  d="M8 8l4 4 7-7"
+                  d="M22 17l8 8L50 5"
                   stroke={WA.blue}
-                  strokeWidth="2.2"
+                  strokeWidth="5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
