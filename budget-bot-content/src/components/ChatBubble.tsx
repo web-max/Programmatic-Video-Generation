@@ -10,6 +10,11 @@ interface ChatBubbleProps {
   time?: string;
 }
 
+const RADIUS = 28;
+const TAIL_RADIUS = 10;
+// Extra right padding in the text area so the overlay timestamp doesn't cover text
+const TIMESTAMP_PAD = 110;
+
 export const ChatBubble: React.FC<ChatBubbleProps> = ({
   role,
   lines,
@@ -54,7 +59,6 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
 
   if (frame < startFrame) return null;
 
-  // Show timestamp only once all lines are visible
   const allVisible = visibleLineCount >= nonEmptyLines.length;
 
   return (
@@ -62,52 +66,32 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
       style={{
         display: 'flex',
         justifyContent: isUser ? 'flex-end' : 'flex-start',
-        padding: `4px ${isUser ? 40 : 32}px 4px ${isUser ? 32 : 40}px`,
+        padding: isUser ? `4px 8px 4px 48px` : `4px 48px 4px 8px`,
         transform: `scale(${scale})`,
         opacity,
         transformOrigin: isUser ? 'right center' : 'left center',
       }}
     >
-      <div style={{ position: 'relative', maxWidth: WA.bubbleMaxWidth }}>
-        {/* Bubble tail */}
-        {isUser ? (
-          <div
-            style={{
-              position: 'absolute',
-              right: -WA.tailSize + 2,
-              bottom: 0,
-              width: 0,
-              height: 0,
-              borderTop: `${WA.tailSize}px solid transparent`,
-              borderLeft: `${WA.tailSize}px solid ${bg}`,
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              position: 'absolute',
-              left: -WA.tailSize + 2,
-              bottom: 0,
-              width: 0,
-              height: 0,
-              borderTop: `${WA.tailSize}px solid transparent`,
-              borderRight: `${WA.tailSize}px solid ${bg}`,
-            }}
-          />
-        )}
-
-        {/* Bubble body */}
+      <div
+        style={{
+          display: 'inline-block',
+          maxWidth: '85%',
+          position: 'relative',
+          background: bg,
+          borderRadius: isUser
+            ? `${RADIUS}px ${TAIL_RADIUS}px ${RADIUS}px ${RADIUS}px`
+            : `${TAIL_RADIUS}px ${RADIUS}px ${RADIUS}px ${RADIUS}px`,
+          boxShadow: '0 1px 2px rgba(11, 20, 26, 0.15)',
+          color: WA.textPrimary,
+          fontSize: WA.fontMessage,
+          lineHeight: 1.35,
+          fontFamily: '"Roboto", Arial, sans-serif',
+        }}
+      >
+        {/* Text lines — always reserve right padding so timestamp overlay fits */}
         <div
           style={{
-            background: bg,
-            borderRadius: isUser
-              ? `${WA.bubbleRadius}px ${WA.bubbleRadius}px 4px ${WA.bubbleRadius}px`
-              : `${WA.bubbleRadius}px ${WA.bubbleRadius}px ${WA.bubbleRadius}px 4px`,
-            padding: `${WA.bubblePadV}px ${WA.bubblePadH}px`,
-            color: WA.textPrimary,
-            fontSize: WA.fontMessage,
-            lineHeight: 1.45,
-            fontFamily: '"Roboto", sans-serif',
+            padding: `${WA.bubblePadV}px ${WA.bubblePadH + TIMESTAMP_PAD}px ${WA.bubblePadV + 2}px ${WA.bubblePadH}px`,
           }}
         >
           {visibleLines.map((line, i) =>
@@ -117,30 +101,50 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
               <div key={i}>{line}</div>
             )
           )}
+        </div>
 
-          {/* Timestamp + read receipts */}
-          {allVisible && (
-            <div
+        {/* Timestamp + ticks overlaid at bottom-right, shown once all lines are visible */}
+        {allVisible && (
+          <div
+            style={{
+              position: 'absolute',
+              right: 12,
+              bottom: WA.bubblePadV - 2,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4,
+            }}
+          >
+            <span
               style={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                alignItems: 'center',
-                gap: 6,
-                marginTop: 8,
+                fontSize: WA.fontTimestamp,
+                color: WA.textTimestamp,
+                lineHeight: 1,
+                whiteSpace: 'nowrap',
               }}
             >
-              <span style={{ fontSize: WA.fontTimestamp, color: WA.textTimestamp }}>
-                {time ?? ''}
-              </span>
-              {isUser && (
-                <svg width="34" height="16" viewBox="0 0 34 16" fill="none">
-                  <path d="M1 8l4 4 7-7" stroke={WA.blue} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M8 8l4 4 7-7" stroke={WA.blue} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              )}
-            </div>
-          )}
-        </div>
+              {time ?? ''}
+            </span>
+            {isUser && (
+              <svg width="34" height="16" viewBox="0 0 34 16" fill="none">
+                <path
+                  d="M1 8l4 4 7-7"
+                  stroke={WA.blue}
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+                <path
+                  d="M8 8l4 4 7-7"
+                  stroke={WA.blue}
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
