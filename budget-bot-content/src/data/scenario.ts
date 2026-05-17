@@ -122,7 +122,7 @@ export const scenario: Scenario = {
     },
     {
       role: 'bot',
-      lines: ['proud of you. that\'s $180 saved.', 'maybe 46 years now 📈'],
+      lines: ['proud of you. that\'s $180 saved. maybe 46 years now 📈'],
       delayFrames: 25,
       time: '10:33 PM',
     },
