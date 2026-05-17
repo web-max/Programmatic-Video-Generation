@@ -28,6 +28,9 @@ export const WA = {
     L: '#27ae60',
     B: '#e67e22',
     W: '#8e44ad',
+    A: '#16a085',
+    S: '#d35400',
+    D: '#7f8c8d',
   } as Record<string, string>,
 
   // Sizes (at 1080px wide ≈ 2.6× a 412dp Android)

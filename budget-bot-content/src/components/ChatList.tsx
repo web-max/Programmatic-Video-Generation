@@ -17,6 +17,7 @@ const FILTER_CHIPS = [
   { label: 'Unread', count: 26 },
   { label: 'Favorites', count: null },
   { label: 'Groups', count: 11 },
+  { label: 'Road Trips', count: null },
 ];
 const NAV_TABS = ['Chats', 'Updates', 'Communities', 'Calls'];
 
@@ -69,7 +70,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '14px 32px 20px',
+          padding: '20px 32px 24px',
         }}
       >
         <span
@@ -94,7 +95,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           style={{
             background: WA.bgSearchBar,
             borderRadius: WA.inputRadius,
-            padding: '18px 32px',
+            padding: '24px 32px',
             display: 'flex',
             alignItems: 'center',
             gap: 16,
@@ -161,7 +162,7 @@ export const ChatList: React.FC<ChatListProps> = ({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                padding: '34px 28px',
+                padding: '36px 28px',
                 gap: 26,
                 transform: `translateY(${translateY}px)`,
                 opacity: itemOpacity,
@@ -314,13 +315,22 @@ export const ChatList: React.FC<ChatListProps> = ({
               }}
             >
               <div style={{ position: 'relative' }}>
-                <NavIcon tab={tab} active={isActive} />
+                <div style={isActive ? {
+                  background: '#d9fdd3',
+                  borderRadius: 32,
+                  padding: '6px 28px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                } : {}}>
+                  <NavIcon tab={tab} active={isActive} />
+                </div>
                 {tab === 'Chats' && (
                   <div
                     style={{
                       position: 'absolute',
-                      top: -8,
-                      right: -12,
+                      top: -4,
+                      right: -4,
                       minWidth: 36,
                       height: 36,
                       borderRadius: 18,

@@ -63,6 +63,24 @@ export const scenario: Scenario = {
       preview: 'can you come in Saturday',
       time: '8:50',
     },
+    {
+      name: 'Alex 🎮',
+      avatar: 'A',
+      preview: 'yo did you see the new trailer',
+      time: '8:30',
+    },
+    {
+      name: 'Sarah',
+      avatar: 'S',
+      preview: 'omg you have to try this place',
+      time: '8:12',
+    },
+    {
+      name: 'Dad',
+      avatar: 'D',
+      preview: 'call me when you get a chance',
+      time: 'Yesterday',
+    },
   ],
   botConversation: [
     {
