@@ -48,11 +48,16 @@ export const WA = {
 
   // Bubble geometry
   bubbleRadius:   18,
-  bubbleMaxWidth: '80%',
+  bubbleMaxWidth: '85%',  // canonical width — used by all chat bubbles via ChatBubble.tsx
   bubblePadV:     16,
   bubblePadH:     26,
   tailSize:       18,
 
   // Input bar
   inputRadius: 48,
+
+  // Chat list specific colors (calibrated separately from conversation colors)
+  textListPrimary: '#111820',  // contact name in chat list rows
+  textListMuted:   '#646b72',  // preview text and timestamp in chat list rows
+  pinColor:        '#90989e',  // pin icon in chat list
 } as const;

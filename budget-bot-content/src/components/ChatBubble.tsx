@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
 import { WA } from '../styles/WhatsAppTheme';
+import { ENTER_SPRING } from '../utils/animations';
 
 interface ChatBubbleProps {
   role: 'user' | 'bot';
@@ -31,7 +32,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   const enterProgress = spring({
     frame: frame - startFrame,
     fps,
-    config: { damping: 18, stiffness: 200, mass: 0.8 },
+    config: ENTER_SPRING,
   });
 
   const scale = interpolate(enterProgress, [0, 1], [0.88, 1]);
@@ -77,7 +78,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
       <div
         style={{
           display: 'inline-block',
-          maxWidth: '85%',
+          maxWidth: WA.bubbleMaxWidth,
           position: 'relative',
           background: bg,
           borderRadius: isUser

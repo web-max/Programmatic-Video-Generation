@@ -1,4 +1,6 @@
 import React from "react";
+import { WA } from "../styles/WhatsAppTheme";
+import { CameraIconHeader as CameraIcon, MoreIcon, SearchIcon } from "./icons/Icons";
 
 export interface WhatsAppChatsTopProps {
   unreadCount?: number;
@@ -8,47 +10,10 @@ export interface WhatsAppChatsTopProps {
   className?: string;
 }
 
-const GREEN = "#25d366";
-const DARK = "#121820";
-const TEXT = "#5f666d";
 const LIGHT_BG = "#f5f5f4";
 const BORDER = "#d8dada";
 const ACTIVE_BG = "#d9ffd6";
 const ACTIVE_BORDER = "#b8daba";
-
-function CameraIcon() {
-  return (
-    <svg width="96" height="96" viewBox="0 0 96 96" aria-hidden="true">
-      <path
-        d="M23 31h14l7-9h19l7 9h14v43H23V31Z"
-        fill="none"
-        stroke={DARK}
-        strokeWidth="7"
-        strokeLinejoin="round"
-      />
-      <circle cx="53" cy="52" r="14" fill="none" stroke={DARK} strokeWidth="7" />
-    </svg>
-  );
-}
-
-function MoreIcon() {
-  return (
-    <svg width="64" height="96" viewBox="0 0 64 96" aria-hidden="true">
-      <circle cx="32" cy="28" r="8" fill={DARK} />
-      <circle cx="32" cy="48" r="8" fill={DARK} />
-      <circle cx="32" cy="68" r="8" fill={DARK} />
-    </svg>
-  );
-}
-
-function SearchIcon() {
-  return (
-    <svg width="86" height="86" viewBox="0 0 86 86" aria-hidden="true">
-      <circle cx="34" cy="34" r="22" fill="none" stroke={TEXT} strokeWidth="7" />
-      <path d="M51 51l24 24" fill="none" stroke={TEXT} strokeWidth="7" strokeLinecap="round" />
-    </svg>
-  );
-}
 
 function FilterChip({
   children,
@@ -106,7 +71,7 @@ export default function WhatsAppChatsTop({
           background: #fff;
           overflow: hidden;
           font-family: Arial, Helvetica, sans-serif;
-          color: ${DARK};
+          color: ${WA.textListPrimary};
           padding-top: 64px;
         }
 
@@ -121,7 +86,7 @@ export default function WhatsAppChatsTop({
 
         .wa-header h1 {
           margin: 0;
-          color: ${GREEN};
+          color: ${WA.green};
           font-size: 88px;
           line-height: 1;
           font-weight: 800;
@@ -147,7 +112,7 @@ export default function WhatsAppChatsTop({
         }
 
         .wa-search span {
-          color: ${TEXT};
+          color: ${WA.textListMuted};
           font-size: 64px;
           line-height: 1;
           font-weight: 400;
@@ -169,7 +134,7 @@ export default function WhatsAppChatsTop({
           border-radius: 60px;
           border: 4px solid ${BORDER};
           background: #fff;
-          color: ${TEXT};
+          color: ${WA.textListMuted};
           padding: 0 42px;
           font-family: inherit;
           font-size: 56px;

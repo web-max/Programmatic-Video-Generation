@@ -1,3 +1,4 @@
+// Archived: not currently used in any active composition.
 import React from 'react';
 import { WA } from '../styles/WhatsAppTheme';
 

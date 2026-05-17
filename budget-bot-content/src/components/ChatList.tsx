@@ -4,6 +4,9 @@ import { ChatListItem } from '../data/scenario';
 import { WA } from '../styles/WhatsAppTheme';
 import WhatsAppChatsTop from './WhatsAppChatsTop';
 import WhatsAppBottomTabs from './WhatsAppBottomTabs';
+import { PinIcon } from './icons/Icons';
+import { SCALE } from '../config/constants';
+import { ENTER_SPRING, makeExitFade } from '../utils/animations';
 
 interface ChatListProps {
   items: ChatListItem[];
@@ -13,21 +16,6 @@ interface ChatListProps {
 }
 
 const STAGGER = 8;
-const SCALE = 1080 / 1536;
-
-// All values proportionally scaled from the 1536px template (×0.703)
-const GREEN = '#25d366';
-const MUTED = '#646b72';
-const DARK = '#111820';
-const PIN_COLOR = '#90989e';
-
-function PinIcon() {
-  return (
-    <svg width="38" height="53" viewBox="0 0 54 76" aria-hidden="true">
-      <path d="M13 3h28v13l-7 6v19l11 9v7H30v15h-6V57H9v-7l11-9V22l-7-6V3Z" fill={PIN_COLOR} />
-    </svg>
-  );
-}
 
 function DefaultAvatar({ initial, bg }: { initial: string; bg: string }) {
   return (
@@ -46,10 +34,7 @@ export const ChatList: React.FC<ChatListProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const exitProgress = interpolate(frame, [exitFrame, exitFrame + 12], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const exitProgress = makeExitFade(frame, exitFrame);
   const containerOpacity = interpolate(exitProgress, [0, 1], [1, 0]);
   const containerScale = interpolate(exitProgress, [0, 1], [1, 0.97]);
 
@@ -79,7 +64,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           const enterProgress = spring({
             frame: frame - itemEnter,
             fps,
-            config: { damping: 20, stiffness: 180, mass: 0.9 },
+            config: ENTER_SPRING,
           });
           const translateY = interpolate(enterProgress, [0, 1], [60, 0]);
           const itemOpacity = interpolate(enterProgress, [0, 1], [0, 1]);
@@ -217,7 +202,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
-          color: ${DARK};
+          color: ${WA.textListPrimary};
           font-size: 44px;
           line-height: 1.08;
           letter-spacing: -1.8px;
@@ -226,7 +211,7 @@ export const ChatList: React.FC<ChatListProps> = ({
         }
 
         .wa-cl-time {
-          color: ${MUTED};
+          color: ${WA.textListMuted};
           font-size: 32px;
           line-height: 1.1;
           letter-spacing: -1px;
@@ -237,7 +222,7 @@ export const ChatList: React.FC<ChatListProps> = ({
         }
 
         .wa-cl-time.unread {
-          color: ${GREEN};
+          color: ${WA.green};
           font-weight: 700;
         }
 
@@ -255,7 +240,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           display: flex;
           align-items: center;
           gap: 14px;
-          color: ${MUTED};
+          color: ${WA.textListMuted};
           font-size: 40px;
           line-height: 1.08;
           letter-spacing: -1.4px;
@@ -281,7 +266,7 @@ export const ChatList: React.FC<ChatListProps> = ({
           width: 56px;
           height: 56px;
           border-radius: 50%;
-          background: ${GREEN};
+          background: ${WA.green};
           color: #fff;
           display: flex;
           align-items: center;
