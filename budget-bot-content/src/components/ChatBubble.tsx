@@ -108,6 +108,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
             fontSize: WA.fontMessage,
             lineHeight: 1.45,
             fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.35)',
           }}
         >
           {visibleLines.map((line, i) =>
@@ -133,9 +134,10 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                 {time ?? ''}
               </span>
               {isUser && (
-                <span style={{ fontSize: WA.fontTimestamp, color: WA.blue, letterSpacing: -2 }}>
-                  ✓✓
-                </span>
+                <svg width="34" height="16" viewBox="0 0 34 16" fill="none">
+                  <path d="M1 8l4 4 7-7" stroke={WA.blue} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M8 8l4 4 7-7" stroke={WA.blue} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
               )}
             </div>
           )}

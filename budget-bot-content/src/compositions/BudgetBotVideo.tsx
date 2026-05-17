@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCurrentFrame, interpolate, AbsoluteFill } from 'remotion';
+import { useCurrentFrame, interpolate, AbsoluteFill, staticFile } from 'remotion';
 import { ScreenRecordingFrame } from '../components/ScreenRecordingFrame';
 import { ChatList } from '../components/ChatList';
 import { ChatConversation } from '../components/ChatConversation';
@@ -169,6 +169,9 @@ const Act3Screen: React.FC<Act3ScreenProps> = ({ enterFrame, replyFrame, theirRe
           flexDirection: 'column',
           justifyContent: 'flex-end',
           paddingBottom: 12,
+          backgroundImage: `url(${staticFile('wa-bg-dark.png')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
         <ChatBubble
@@ -205,7 +208,7 @@ const Act3Screen: React.FC<Act3ScreenProps> = ({ enterFrame, replyFrame, theirRe
           display: 'flex',
           alignItems: 'center',
           gap: 14,
-          background: WA.bgConversation,
+          background: WA.bgHeader,
         }}
       >
         <svg width="44" height="44" viewBox="0 0 24 24" fill={WA.textSecondary}>

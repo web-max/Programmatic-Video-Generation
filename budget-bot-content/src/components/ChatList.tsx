@@ -12,7 +12,12 @@ interface ChatListProps {
 }
 
 const STAGGER = 8;
-const FILTER_CHIPS = ['All', 'Unread', 'Favorites', 'Groups'];
+const FILTER_CHIPS = [
+  { label: 'All', count: null },
+  { label: 'Unread', count: 26 },
+  { label: 'Favorites', count: null },
+  { label: 'Groups', count: 11 },
+];
 const NAV_TABS = ['Chats', 'Updates', 'Communities', 'Calls'];
 
 // SVG icons
@@ -106,7 +111,7 @@ export const ChatList: React.FC<ChatListProps> = ({
 
       {/* Filter chips */}
       <div style={{ display: 'flex', gap: 16, padding: '0 24px 20px', overflowX: 'hidden' }}>
-        {FILTER_CHIPS.map((label) => {
+        {FILTER_CHIPS.map(({ label, count }) => {
           const isActive = label === 'All';
           return (
             <div
@@ -122,7 +127,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                 fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
               }}
             >
-              {label}
+              {count != null ? `${label} ${count}` : label}
             </div>
           );
         })}
@@ -251,26 +256,32 @@ export const ChatList: React.FC<ChatListProps> = ({
                   >
                     {item.preview}
                   </span>
-                  {item.unread && (
-                    <div
-                      style={{
-                        minWidth: 44,
-                        height: 44,
-                        borderRadius: 22,
-                        background: WA.green,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: WA.fontBadge,
-                        fontWeight: 700,
-                        color: '#fff',
-                        padding: '0 8px',
-                        flexShrink: 0,
-                      }}
-                    >
-                      {item.unread}
-                    </div>
-                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                    {item.pinned && (
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill={WA.textSecondary} style={{ opacity: 0.7 }}>
+                        <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+                      </svg>
+                    )}
+                    {item.unread ? (
+                      <div
+                        style={{
+                          minWidth: 44,
+                          height: 44,
+                          borderRadius: 22,
+                          background: WA.green,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: WA.fontBadge,
+                          fontWeight: 700,
+                          color: '#fff',
+                          padding: '0 8px',
+                        }}
+                      >
+                        {item.unread}
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             </div>
@@ -302,7 +313,31 @@ export const ChatList: React.FC<ChatListProps> = ({
                 color: isActive ? WA.green : WA.textSecondary,
               }}
             >
-              <NavIcon tab={tab} active={isActive} />
+              <div style={{ position: 'relative' }}>
+                <NavIcon tab={tab} active={isActive} />
+                {tab === 'Chats' && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: -8,
+                      right: -12,
+                      minWidth: 36,
+                      height: 36,
+                      borderRadius: 18,
+                      background: WA.green,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 22,
+                      fontWeight: 700,
+                      color: '#fff',
+                      padding: '0 6px',
+                    }}
+                  >
+                    26
+                  </div>
+                )}
+              </div>
               <span style={{ fontSize: WA.fontNav }}>{tab}</span>
             </div>
           );

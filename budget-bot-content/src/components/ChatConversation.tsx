@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
+import { useCurrentFrame, interpolate, spring, useVideoConfig, staticFile } from 'remotion';
 import { StatusBar } from './StatusBar';
 import { ChatBubble } from './ChatBubble';
 import { TypingIndicator } from './TypingIndicator';
@@ -102,6 +102,7 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
         background: WA.bgConversation,
         opacity,
         transform: `translateX(${translateX}px)`,
+        overflow: 'hidden',
       }}
     >
       <StatusBar />
@@ -163,6 +164,9 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
           flexDirection: 'column',
           justifyContent: 'flex-end',
           padding: '12px 0',
+          backgroundImage: `url(${staticFile('wa-bg-dark.png')})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
         }}
       >
         <div style={{ transform: `translateY(-${scrollOffset}px)` }}>
@@ -187,7 +191,7 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
           display: 'flex',
           alignItems: 'center',
           gap: 14,
-          background: WA.bgConversation,
+          background: WA.bgHeader,
         }}
       >
         <EmojiIcon />

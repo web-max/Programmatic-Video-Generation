@@ -4,6 +4,7 @@ export interface ChatListItem {
   preview: string;
   time: string;
   unread?: number;
+  pinned?: boolean;
 }
 
 export interface Message {
@@ -33,12 +34,14 @@ export const scenario: Scenario = {
       preview: 'are you eating properly??? 😤',
       time: '9:38',
       unread: 3,
+      pinned: true,
     },
     {
       name: 'Royce DuPont III',
       avatar: 'R',
       preview: 'the market waits for no one, Gerald',
       time: '9:35',
+      pinned: true,
     },
     {
       name: 'Landlord 🏠',
