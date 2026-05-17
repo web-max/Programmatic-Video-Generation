@@ -48,7 +48,7 @@ export const WA = {
 
   // Bubble geometry
   bubbleRadius:   18,
-  bubbleMaxWidth: '85%',  // canonical width — used by all chat bubbles via ChatBubble.tsx
+  bubbleMaxWidth: '918px',  // 85% of 1080px canvas — fixed px so it resolves identically in any CSS layout context
   bubblePadV:     16,
   bubblePadH:     26,
   tailSize:       18,
