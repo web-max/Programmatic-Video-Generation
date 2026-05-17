@@ -44,7 +44,7 @@ export const WA = {
   fontBadge:     31,
   fontNav:       28,
   fontStatus:    26,
-  fontFilter:    28,
+  fontFilter:    34,
 
   // Bubble geometry
   bubbleRadius:   18,
