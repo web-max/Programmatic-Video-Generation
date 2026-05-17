@@ -198,6 +198,7 @@ export const ChatList: React.FC<ChatListProps> = ({
 
         .wa-cl-main {
           padding-top: 24px;
+          padding-left: 16px;
           padding-right: 44px;
           min-width: 0;
         }

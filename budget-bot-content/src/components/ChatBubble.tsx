@@ -12,8 +12,11 @@ interface ChatBubbleProps {
 
 const RADIUS = 28;
 const TAIL_RADIUS = 10;
-// Extra right padding in the text area so the overlay timestamp doesn't cover text
-const TIMESTAMP_PAD = 110;
+// Inline spacer width appended to the last visible line so the absolute timestamp never overlaps.
+// Incoming: gap(32) + time_text(~120) + right_pos(12) - right_pad(26) = 138 → 150
+// Outgoing: adds ticks(34) + tick_gap(4) → 138 + 38 = 176 → 190
+const INCOMING_META_SPACE = 150;
+const OUTGOING_META_SPACE = 190;
 
 export const ChatBubble: React.FC<ChatBubbleProps> = ({
   role,
@@ -39,10 +42,9 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
   const bg = isUser ? WA.bgBubbleSent : WA.bgBubbleReceived;
 
   const nonEmptyLines = lines.filter((l) => l !== '');
-  const visibleLineCount = Math.min(
-    nonEmptyLines.length,
-    Math.floor(elapsed / framesPerLine) + 1
-  );
+  const visibleLineCount = framesPerLine === 0
+    ? nonEmptyLines.length
+    : Math.min(nonEmptyLines.length, Math.floor(elapsed / framesPerLine) + 1);
 
   let nonEmptyVisible = 0;
   const visibleLines: string[] = [];
@@ -88,19 +90,31 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
           fontFamily: '"Roboto", Arial, sans-serif',
         }}
       >
-        {/* Text lines — always reserve right padding so timestamp overlay fits */}
+        {/* Text lines with inline meta-spacer on the last visible line */}
         <div
           style={{
-            padding: `${WA.bubblePadV}px ${WA.bubblePadH + TIMESTAMP_PAD}px ${WA.bubblePadV + 2}px ${WA.bubblePadH}px`,
+            padding: `${WA.bubblePadV}px ${WA.bubblePadH}px ${WA.bubblePadV + 2}px ${WA.bubblePadH}px`,
           }}
         >
-          {visibleLines.map((line, i) =>
-            line === '' ? (
-              <div key={i} style={{ height: 6 }} />
-            ) : (
-              <div key={i}>{line}</div>
-            )
-          )}
+          {(() => {
+            const metaSpace = isUser ? OUTGOING_META_SPACE : INCOMING_META_SPACE;
+            let lastNonEmptyIdx = -1;
+            for (let i = visibleLines.length - 1; i >= 0; i--) {
+              if (visibleLines[i] !== '') { lastNonEmptyIdx = i; break; }
+            }
+            return visibleLines.map((line, i) =>
+              line === '' ? (
+                <div key={i} style={{ height: 6 }} />
+              ) : (
+                <div key={i}>
+                  {line}
+                  {i === lastNonEmptyIdx && (
+                    <span style={{ display: 'inline-block', width: metaSpace, height: 1, verticalAlign: 'bottom' }} />
+                  )}
+                </div>
+              )
+            );
+          })()}
         </div>
 
         {/* Timestamp + ticks overlaid at bottom-right, shown once all lines are visible */}

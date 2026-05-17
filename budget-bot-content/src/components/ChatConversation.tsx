@@ -54,7 +54,8 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
   for (const msg of messages) {
     messageStartFrames.push(cursor);
     const linesCount = msg.lines.filter((l) => l !== '').length;
-    cursor += msg.delayFrames + linesCount * 10 + 20;
+    const revealFrames = msg.role === 'bot' ? 0 : linesCount * 10;
+    cursor += msg.delayFrames + revealFrames + 20;
   }
 
   const showTyping = frame >= typingFrame && frame < typingFrame + typingDuration;
@@ -102,7 +103,7 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
               role={msg.role}
               lines={msg.lines}
               startFrame={messageStartFrames[i]}
-              framesPerLine={10}
+              framesPerLine={msg.role === 'bot' ? 0 : 10}
               time={msg.time}
             />
           ))}
