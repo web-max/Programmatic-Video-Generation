@@ -5,3 +5,4 @@ dist-scripts/
 .env
 *.mp4
 *.mov
+screenshots/
