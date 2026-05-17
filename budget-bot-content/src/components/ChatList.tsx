@@ -1,8 +1,9 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
-import { StatusBar } from './StatusBar';
 import { ChatListItem } from '../data/scenario';
 import { WA } from '../styles/WhatsAppTheme';
+import WhatsAppChatsTop from './WhatsAppChatsTop';
+import WhatsAppBottomTabs from './WhatsAppBottomTabs';
 
 interface ChatListProps {
   items: ChatListItem[];
@@ -12,28 +13,7 @@ interface ChatListProps {
 }
 
 const STAGGER = 8;
-const FILTER_CHIPS = [
-  { label: 'All', count: null },
-  { label: 'Unread', count: 26 },
-  { label: 'Favorites', count: null },
-  { label: 'Groups', count: 11 },
-  { label: 'Road Trips', count: null },
-];
-const NAV_TABS = ['Chats', 'Updates', 'Communities', 'Calls'];
-
-// SVG icons
-const CameraIcon = () => (
-  <svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke={WA.textPrimary} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-    <circle cx="12" cy="13" r="4"/>
-  </svg>
-);
-
-const ThreeDotsIcon = () => (
-  <svg width="40" height="40" viewBox="0 0 24 24" fill={WA.textPrimary}>
-    <circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" />
-  </svg>
-);
+const SCALE = 1080 / 1536;
 
 export const ChatList: React.FC<ChatListProps> = ({
   items,
@@ -63,76 +43,11 @@ export const ChatList: React.FC<ChatListProps> = ({
         height: '100%',
       }}
     >
-      <StatusBar />
-
-      {/* Header */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '20px 32px 24px',
-        }}
-      >
-        <span
-          style={{
-            fontSize: WA.fontTitle,
-            fontWeight: 700,
-            color: WA.green,
-            fontFamily: '"Roboto", sans-serif',
-          }}
-        >
-          WhatsApp
-        </span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 28 }}>
-          <CameraIcon />
-          <ThreeDotsIcon />
+      {/* Top section: WhatsApp header + search + filters */}
+      <div style={{ height: Math.round(726 * SCALE), overflow: 'hidden', flexShrink: 0 }}>
+        <div style={{ transformOrigin: 'left top', transform: `scale(${SCALE})` }}>
+          <WhatsAppChatsTop unreadCount={26} groupCount={11} />
         </div>
-      </div>
-
-      {/* Search bar */}
-      <div style={{ padding: '0 24px 16px' }}>
-        <div
-          style={{
-            background: WA.bgSearchBar,
-            borderRadius: WA.inputRadius,
-            padding: '24px 32px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 16,
-          }}
-        >
-          <svg width="34" height="34" viewBox="0 0 24 24" fill={WA.textSecondary}>
-            <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z" />
-          </svg>
-          <span style={{ fontSize: WA.fontPreview, color: WA.textSecondary }}>
-            Ask Meta AI or Search
-          </span>
-        </div>
-      </div>
-
-      {/* Filter chips */}
-      <div style={{ display: 'flex', gap: 10, padding: '0 24px 20px', overflowX: 'hidden' }}>
-        {FILTER_CHIPS.map(({ label, count }) => {
-          const isActive = label === 'All';
-          return (
-            <div
-              key={label}
-              style={{
-                borderRadius: 32,
-                border: isActive ? 'none' : `1px solid #d1d7db`,
-                background: isActive ? WA.green : 'transparent',
-                padding: '18px 32px',
-                fontSize: WA.fontFilter,
-                color: isActive ? '#fff' : WA.textSecondary,
-                whiteSpace: 'nowrap',
-                fontFamily: '"Roboto", sans-serif',
-              }}
-            >
-              {count != null ? `${label} ${count}` : label}
-            </div>
-          );
-        })}
       </div>
 
       {/* Chat items */}
@@ -291,97 +206,12 @@ export const ChatList: React.FC<ChatListProps> = ({
         })}
       </div>
 
-      {/* Bottom nav bar */}
-      <div
-        style={{
-          background: WA.bgHeader,
-          display: 'flex',
-          justifyContent: 'space-around',
-          alignItems: 'center',
-          padding: '20px 16px 40px',
-          borderTop: '1px solid #e9edef',
-        }}
-      >
-        {NAV_TABS.map((tab) => {
-          const isActive = tab === 'Chats';
-          return (
-            <div
-              key={tab}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: 8,
-                color: isActive ? WA.green : WA.textSecondary,
-              }}
-            >
-              <div style={{ position: 'relative' }}>
-                <div style={isActive ? {
-                  background: '#d9fdd3',
-                  borderRadius: 32,
-                  padding: '6px 28px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                } : {}}>
-                  <NavIcon tab={tab} active={isActive} />
-                </div>
-                {tab === 'Chats' && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: -4,
-                      right: -4,
-                      minWidth: 36,
-                      height: 36,
-                      borderRadius: 18,
-                      background: WA.green,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: 22,
-                      fontWeight: 700,
-                      color: '#fff',
-                      padding: '0 6px',
-                    }}
-                  >
-                    26
-                  </div>
-                )}
-              </div>
-              <span style={{ fontSize: WA.fontNav }}>{tab}</span>
-            </div>
-          );
-        })}
+      {/* Bottom nav */}
+      <div style={{ height: Math.round(330 * SCALE), overflow: 'hidden', flexShrink: 0 }}>
+        <div style={{ transformOrigin: 'left top', transform: `scale(${SCALE})` }}>
+          <WhatsAppBottomTabs chatCount={26} />
+        </div>
       </div>
     </div>
-  );
-};
-
-const NavIcon: React.FC<{ tab: string; active: boolean }> = ({ tab, active }) => {
-  const color = active ? WA.green : WA.textSecondary;
-  const size = 52;
-  if (tab === 'Chats') return (
-    <svg width={size} height={size} viewBox="0 0 24 24">
-      <path fill={color} d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
-      <path fill="white" d="M6.5 8.5h11v1.8h-11zm0 3.8h7v1.8h-7z" opacity="0.9"/>
-    </svg>
-  );
-  if (tab === 'Updates') return (
-    <svg width={size} height={size} viewBox="0 0 24 24">
-      <circle cx="12" cy="12" r="10" fill="none" stroke={color} strokeWidth="2"/>
-      <path fill={color} d="M15 9.5h-.72L13.5 8.5h-3l-.78 1H9c-.55 0-1 .45-1 1v4.5c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V10.5c0-.55-.45-1-1-1zm-3 5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/>
-    </svg>
-  );
-  if (tab === 'Communities') return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
-      <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-    </svg>
-  );
-  // Calls — outlined phone handset
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 3.18h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 11a16 16 0 006.9 6.9l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
-    </svg>
   );
 };
