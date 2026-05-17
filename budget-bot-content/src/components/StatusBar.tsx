@@ -11,7 +11,7 @@ export const StatusBar: React.FC = () => (
       fontSize: 28,
       fontWeight: 600,
       color: WA.textPrimary,
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+      fontFamily: '"Roboto", sans-serif',
     }}
   >
     <span>9:41</span>

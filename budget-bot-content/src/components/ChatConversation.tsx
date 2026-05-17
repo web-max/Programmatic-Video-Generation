@@ -141,7 +141,7 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
               fontSize: WA.fontName,
               fontWeight: 600,
               color: WA.textPrimary,
-              fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+              fontFamily: '"Roboto", sans-serif',
             }}
           >
             {contactName}
@@ -203,7 +203,7 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
             padding: '18px 28px',
             fontSize: WA.fontPreview,
             color: WA.textPlaceholder,
-            fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+            fontFamily: '"Roboto", sans-serif',
           }}
         >
           Message

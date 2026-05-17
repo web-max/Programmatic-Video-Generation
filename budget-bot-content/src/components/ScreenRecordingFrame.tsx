@@ -8,7 +8,7 @@ export const ScreenRecordingFrame: React.FC<{ children: React.ReactNode }> = ({ 
       background: '#111b21',
       overflow: 'hidden',
       position: 'relative',
-      fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+      fontFamily: '"Roboto", sans-serif',
     }}
   >
     {children}

@@ -29,7 +29,7 @@ export const PhoneFrame: React.FC<PhoneFrameProps> = ({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif',
+        fontFamily: '"Roboto", sans-serif',
       }}
     >
       <div

@@ -78,7 +78,7 @@ export const ChatList: React.FC<ChatListProps> = ({
             fontSize: WA.fontTitle,
             fontWeight: 700,
             color: WA.green,
-            fontFamily: '-apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif',
+            fontFamily: '"Roboto", sans-serif',
           }}
         >
           WhatsApp
@@ -111,7 +111,7 @@ export const ChatList: React.FC<ChatListProps> = ({
       </div>
 
       {/* Filter chips */}
-      <div style={{ display: 'flex', gap: 16, padding: '0 24px 20px', overflowX: 'hidden' }}>
+      <div style={{ display: 'flex', gap: 10, padding: '0 24px 20px', overflowX: 'hidden' }}>
         {FILTER_CHIPS.map(({ label, count }) => {
           const isActive = label === 'All';
           return (
@@ -121,11 +121,11 @@ export const ChatList: React.FC<ChatListProps> = ({
                 borderRadius: 32,
                 border: isActive ? 'none' : `1px solid #d1d7db`,
                 background: isActive ? WA.green : 'transparent',
-                padding: '10px 28px',
+                padding: '10px 20px',
                 fontSize: WA.fontFilter,
                 color: isActive ? '#fff' : WA.textSecondary,
                 whiteSpace: 'nowrap',
-                fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+                fontFamily: '"Roboto", sans-serif',
               }}
             >
               {count != null ? `${label} ${count}` : label}
@@ -162,7 +162,7 @@ export const ChatList: React.FC<ChatListProps> = ({
               style={{
                 display: 'flex',
                 alignItems: 'center',
-                padding: '36px 28px',
+                padding: '38px 28px',
                 gap: 26,
                 transform: `translateY(${translateY}px)`,
                 opacity: itemOpacity,
@@ -210,7 +210,7 @@ export const ChatList: React.FC<ChatListProps> = ({
               </div>
 
               {/* Content */}
-              <div style={{ flex: 1, minWidth: 0, borderBottom: '1px solid #e9edef', paddingBottom: 22 }}>
+              <div style={{ flex: 1, minWidth: 0, borderBottom: '1px solid #e9edef', paddingBottom: 24 }}>
                 <div
                   style={{
                     display: 'flex',

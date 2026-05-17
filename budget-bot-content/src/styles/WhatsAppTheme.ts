@@ -1,11 +1,11 @@
 // Calibrated from WhatsApp light-theme screenshots at 1080px-wide render (~2.6× real phone)
 export const WA = {
   // Backgrounds
-  bgChatList:        '#ffffff',
-  bgConversation:    '#ece5dd',
+  bgChatList:        '#F7F5F3',
+  bgConversation:    '#EFEAE2',
   bgHeader:          '#ffffff',
   bgInput:           '#f0f2f5',
-  bgBubbleSent:      '#dcf8c6',
+  bgBubbleSent:      '#D9FDD3',
   bgBubbleReceived:  '#ffffff',
   bgSearchBar:       '#f0f2f5',
   bgFilterActive:    '#25d366',
@@ -33,25 +33,25 @@ export const WA = {
     D: '#7f8c8d',
   } as Record<string, string>,
 
-  // Sizes (at 1080px wide ≈ 2.6× a 412dp Android)
+  // Sizes (at 1080px wide ≈ 2.62× a 412dp Android — Pixel 6 baseline)
   avatarLg:     128,
-  avatarSm:      96,
-  fontTitle:     52,
-  fontName:      42,
-  fontPreview:   36,
-  fontMessage:   36,
-  fontTimestamp: 26,
-  fontBadge:     26,
+  avatarSm:      84,
+  fontTitle:     48,
+  fontName:      44,
+  fontPreview:   37,
+  fontMessage:   39,
+  fontTimestamp: 29,
+  fontBadge:     31,
   fontNav:       28,
   fontStatus:    26,
   fontFilter:    28,
 
   // Bubble geometry
   bubbleRadius:   18,
-  bubbleMaxWidth: '68%',
-  bubblePadV:     20,
+  bubbleMaxWidth: '80%',
+  bubblePadV:     16,
   bubblePadH:     26,
-  tailSize:       14,
+  tailSize:       18,
 
   // Input bar
   inputRadius: 48,

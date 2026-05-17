@@ -141,7 +141,7 @@ const Act3Screen: React.FC<Act3ScreenProps> = ({ enterFrame, replyFrame, theirRe
               fontSize: WA.fontName,
               fontWeight: 600,
               color: WA.textPrimary,
-              fontFamily: '-apple-system, BlinkMacSystemFont, sans-serif',
+              fontFamily: '"Roboto", sans-serif',
             }}
           >
             {scenario.resolution.replyTo}
