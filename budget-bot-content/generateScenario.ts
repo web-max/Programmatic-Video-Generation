@@ -1,13 +1,14 @@
 /**
  * generateScenario.ts
  *
- * Generates a new scenario.ts file for a given spending topic.
+ * Calls Claude to generate a new scenario file and writes it to src/data/scenarios/.
+ * Automatically adds an import to src/data/scenarios/index.ts.
  *
  * Usage:
  *   ANTHROPIC_API_KEY=sk-... npx ts-node --project tsconfig.scripts.json generateScenario.ts "sneaker drop"
  *   ANTHROPIC_API_KEY=sk-... npx ts-node --project tsconfig.scripts.json generateScenario.ts "flight to miami"
  *
- * The model is configurable via MODEL env var (default: claude-opus-4-7).
+ * Model override: MODEL=claude-sonnet-4-6 ANTHROPIC_API_KEY=sk-... npx ts-node ...
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -17,48 +18,76 @@ import * as path from 'path';
 const MODEL = process.env.MODEL ?? 'claude-opus-4-7';
 
 const SYSTEM_PROMPT = `You are a script writer for a funny personal finance social media video.
-Your job is to write a scenario where a budget bot intervenes when someone is about to make a questionable purchase.
+Write a scenario where a Budget Bot intervenes when someone is about to make a questionable purchase.
 
 Rules:
 - Be funny and specific. Use realistic dollar amounts.
-- Include one embarrassing note from the user's purchase/social history (e.g., they ordered a $60 steak and ate it alone, or they spent $200 on a bar tab for themselves).
-- The bot response should be gently roasting, not mean.
-- Always end with the user making the responsible choice, but in a defeated, reluctant way.
-- The chat list should feel like a chaotic real life (worried mom, pretentious friend, landlord, tempting friend, annoying work message).
-- Keep line lengths short — each line of the bot message should be under 60 characters.
-- The "triggerContact" should be the tempting friend who offers the bad financial decision.
-- Return ONLY valid JSON matching the TypeScript Scenario interface. No markdown, no explanation.`;
+- Include one embarrassing detail from the user's purchase/social history.
+- The bot is gently roasting, not mean.
+- The user makes the responsible choice, but reluctantly/defeated.
+- The chat list should feel like chaotic real life (worried mom, pretentious friend, landlord, tempting friend, work).
+- Keep each bot message line under 60 characters. Use empty strings "" for paragraph spacing.
+- Return ONLY valid JSON. No markdown, no explanation.`;
 
 const SCENARIO_INTERFACE = `
-interface ChatListItem {
-  name: string;       // contact display name (can have emoji)
-  avatar: string;     // single uppercase letter for avatar circle
-  preview: string;    // last message preview text
-  time: string;       // time string like "9:41"
-  unread?: number;    // optional unread count (1-5)
+The JSON must match this shape exactly:
+
+{
+  "id": string,           // PascalCase, no spaces, e.g. "SneakerDrop"
+  "chatList": [           // 6-8 contacts
+    {
+      "name": string,     // display name, can have emoji
+      "avatar": string,   // single uppercase letter
+      "preview": string,  // last message preview
+      "time": string,     // e.g. "9:41" or "Yesterday"
+      "unread": number,   // optional, 1-5
+      "pinned": boolean   // optional
+    }
+  ],
+  "scenes": [
+    {
+      "type": "chat-list",
+      "tapContact": string,   // name of the contact to tap (should be in chatList)
+      "duration": 105
+    },
+    {
+      "type": "conversation",
+      "contactName": "💰 Budget Bot",
+      "messages": [
+        {
+          "role": "user" | "bot",
+          "lines": string[],    // each string is one line; use "" for blank spacing
+          "delayFrames": number // 20-60, gap before this message appears
+        }
+      ],
+      "typingOffset": 45,
+      "typingDuration": 18
+    },
+    {
+      "type": "quick-reply",
+      "contactName": string,   // the tempting friend who made the offer
+      "previewMessage": string, // their original message shown at top
+      "userMessage": string,    // user's responsible-but-defeated reply
+      "contactResponse": string, // their funny/sad one-line response
+      "duration": 440,
+      "replyOffset": 50,
+      "responseOffset": 110,
+      "times": { "preview": "9:15 AM", "reply": "9:41 AM", "response": "9:41 AM" }
+    }
+  ]
 }
 
-interface Message {
-  role: "user" | "bot";
-  lines: string[];      // each string is one line; use "" for blank spacing lines
-  delayFrames: number;  // frames to wait after previous message (20-60)
-}
+The scenes array must have exactly 3 items in this order: chat-list, conversation, quick-reply.
+The conversation must have exactly 4 messages: user opener, bot roast, user defeat, bot sign-off.`;
 
-interface Scenario {
-  triggerContact: string;  // name of contact user "taps" in chat list
-  chatList: ChatListItem[]; // exactly 5 items
-  botConversation: Message[]; // user message, bot response, user reply, bot reply — 4 messages
-  resolution: {
-    replyTo: string;      // same as triggerContact
-    userMessage: string;  // user's responsible-but-defeated reply to triggerContact
-    theirResponse: string; // triggerContact's one-line response (funny/sad)
-  };
-}`;
+function toKebabCase(id: string): string {
+  return id.replace(/([A-Z])/g, (_, c, i) => (i > 0 ? '-' : '') + c.toLowerCase());
+}
 
 async function generateScenario(topic: string): Promise<void> {
   const client = new Anthropic();
 
-  console.log(`Generating scenario for topic: "${topic}" using ${MODEL}...`);
+  console.log(`Generating scenario for: "${topic}" using ${MODEL}...`);
 
   const message = await client.messages.create({
     model: MODEL,
@@ -67,84 +96,63 @@ async function generateScenario(topic: string): Promise<void> {
     messages: [
       {
         role: 'user',
-        content: `Generate a Scenario JSON object for this spending topic: "${topic}".
-
-The scenario should follow this TypeScript interface:
-${SCENARIO_INTERFACE}
-
-Return only the raw JSON object. No markdown code fences, no explanation.`,
+        content: `Generate a scenario JSON for this spending topic: "${topic}"\n\n${SCENARIO_INTERFACE}\n\nReturn only the raw JSON object.`,
       },
     ],
   });
 
   const rawContent = message.content[0];
-  if (rawContent.type !== 'text') {
-    throw new Error('Unexpected response type from Claude');
-  }
+  if (rawContent.type !== 'text') throw new Error('Unexpected response type from Claude');
 
-  let jsonText = rawContent.text.trim();
-  // Strip markdown code fences if the model included them anyway
-  jsonText = jsonText.replace(/^```(?:json|typescript)?\n?/, '').replace(/\n?```$/, '');
+  let jsonText = rawContent.text.trim().replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '');
 
-  let parsed: unknown;
+  let parsed: Record<string, unknown>;
   try {
     parsed = JSON.parse(jsonText);
   } catch (e) {
-    console.error('Failed to parse JSON response:\n', jsonText);
+    console.error('Failed to parse JSON:\n', jsonText);
     throw e;
   }
 
-  const outputPath = path.join(__dirname, 'src', 'data', 'scenario.ts');
+  const id = parsed.id as string;
+  const slug = toKebabCase(id);
+  const scenariosDir = path.join(__dirname, 'src', 'data', 'scenarios');
+  const outputPath = path.join(scenariosDir, `${slug}.ts`);
 
   const fileContent = `// Auto-generated by generateScenario.ts — topic: ${JSON.stringify(topic)}
-import type { Scenario } from './scenario';
+import { Scenario } from '../types';
+import { makeEmojiAvatar } from '../../utils/makeEmojiAvatar';
 
-export type { ChatListItem, Message, Scenario } from './scenario';
-
-export const scenario: Scenario = ${JSON.stringify(parsed, null, 2)};
+export const ${slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase())}: Scenario = ${JSON.stringify(parsed, null, 2)};
 `;
 
-  // Write as a standalone scenario file with the generated content inlined
-  const standaloneContent = `// Auto-generated by generateScenario.ts — topic: ${JSON.stringify(topic)}
-
-export interface ChatListItem {
-  name: string;
-  avatar: string;
-  preview: string;
-  time: string;
-  unread?: number;
-}
-
-export interface Message {
-  role: 'user' | 'bot';
-  lines: string[];
-  delayFrames: number;
-}
-
-export interface Scenario {
-  triggerContact: string;
-  chatList: ChatListItem[];
-  botConversation: Message[];
-  resolution: {
-    replyTo: string;
-    userMessage: string;
-    theirResponse: string;
-  };
-}
-
-export const scenario: Scenario = ${JSON.stringify(parsed, null, 2)};
-`;
-
-  fs.writeFileSync(outputPath, standaloneContent, 'utf-8');
+  fs.writeFileSync(outputPath, fileContent, 'utf-8');
   console.log(`\nScenario written to: ${outputPath}`);
-  console.log('\nGenerated scenario preview:');
-  console.log(JSON.stringify(parsed, null, 2).slice(0, 600) + '...');
+
+  // Add import to index.ts
+  const indexPath = path.join(scenariosDir, 'index.ts');
+  const indexContent = fs.readFileSync(indexPath, 'utf-8');
+  const varName = slug.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+
+  if (!indexContent.includes(slug)) {
+    const importLine = `import { ${varName} } from './${slug}';`;
+    const updatedScenarios = indexContent
+      .replace(/^(import.*\n)+/m, (match) => match + importLine + '\n')
+      .replace(/export const scenarios: Scenario\[\] = \[([^\]]*)\];/, (_, inner) => {
+        const trimmed = inner.trim();
+        const newInner = trimmed ? `${trimmed}, ${varName}` : varName;
+        return `export const scenarios: Scenario[] = [${newInner}];`;
+      });
+    fs.writeFileSync(indexPath, updatedScenarios, 'utf-8');
+    console.log(`Added "${varName}" to scenarios/index.ts`);
+  }
+
+  console.log(`\nRender with:\n  npx remotion render src/index.ts ${id} --output out/${slug}.mp4`);
 }
 
 const topic = process.argv[2];
 if (!topic) {
   console.error('Usage: npx ts-node --project tsconfig.scripts.json generateScenario.ts "<topic>"');
-  console.error('Example: npx ts-node --project tsconfig.scripts.json generateScenario.ts "sneaker drop"');
   process.exit(1);
 }
 

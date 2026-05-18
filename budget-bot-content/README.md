@@ -1,113 +1,64 @@
 # Budget Bot Content — Remotion Video
 
-A Remotion project that renders short-form vertical social media videos (1080×1920, 30fps) showing a phone screen with a WhatsApp-style chat experience. The Budget Bot roasts your spending and saves you money, one cringe moment at a time.
+A Remotion project that renders short-form vertical social media videos (1080×1920, 30fps) of a phone screen showing WhatsApp-style chat interactions. Scripts are data — no component code changes needed to create a new video.
 
 ## Quick Start
 
 ```bash
-cd budget-bot-content
 npm install
-```
 
-### Preview in browser
-
-```bash
+# Preview all scenarios in browser
 npx remotion preview src/index.ts
-# Opens http://localhost:3000 — scrub through the timeline
+
+# Render a specific scenario
+npx remotion render src/index.ts BottlesNight --output out/bottles-night.mp4
 ```
 
-### Render to MP4
+## Adding a new scenario
+
+See `CLAUDE.md` for the full guide. Short version:
+
+1. Create `src/data/scenarios/your-slug.ts` — copy `bottles-night.ts` as a template
+2. Add it to `src/data/scenarios/index.ts`
+3. Render: `npx remotion render src/index.ts YourScenarioId --output out/your-video.mp4`
+
+## AI-powered scenario generation
 
 ```bash
-npx remotion render src/index.ts BudgetBotVideo --output out/video.mp4
+ANTHROPIC_API_KEY=sk-ant-... npx ts-node --project tsconfig.scripts.json generateScenario.ts "sneaker drop"
+ANTHROPIC_API_KEY=sk-ant-... npx ts-node --project tsconfig.scripts.json generateScenario.ts "flight to miami"
 ```
 
-Output: `out/video.mp4` — 1080×1920, 45 seconds, ready to post.
-
----
+Generates a new scenario file in `src/data/scenarios/` and registers it automatically.
 
 ## Project Structure
 
 ```
-budget-bot-content/
-├── src/
-│   ├── compositions/
-│   │   └── BudgetBotVideo.tsx   # Main composition, orchestrates all acts
-│   ├── components/
-│   │   ├── ChatList.tsx          # Act 1: chat list screen with stagger animation
-│   │   ├── ChatConversation.tsx  # Act 2: budget bot conversation
-│   │   ├── ChatBubble.tsx        # Individual message bubble with spring animation
-│   │   ├── TypingIndicator.tsx   # Animated three-dot typing indicator
-│   │   ├── PhoneFrame.tsx        # Phone chrome wrapper
-│   │   └── StatusBar.tsx         # Time, battery, signal icons
-│   ├── data/
-│   │   └── scenario.ts           # All copy and timing data for the bottles scenario
-│   ├── hooks/
-│   │   └── useTextReveal.ts      # Hook for word-by-word and line-by-line text reveal
-│   ├── Root.tsx                  # Registers the composition
-│   └── index.ts                  # Entry point for Remotion
-├── generateScenario.ts           # AI-powered scenario generator (stretch goal)
-├── renderVideo.ts                # Convenience render wrapper
-├── package.json
-├── tsconfig.json
-└── tsconfig.scripts.json         # For ts-node scripts
+src/
+  compositions/
+    VideoComposition.tsx    # Generic scene runner — not story-specific
+  components/
+    ChatList.tsx            # WhatsApp homescreen building block
+    ChatConversation.tsx    # Full animated chat building block
+    QuickReplyScreen.tsx    # Brief 3-message exchange building block
+    ChatBubble.tsx          # Individual message bubble
+    TypingIndicator.tsx     # Three-dot typing indicator
+  data/
+    types.ts                # Shared interfaces (Scenario, Scene, Message, ...)
+    scenarios/
+      bottles-night.ts      # "Should I get bottles?" scenario
+      index.ts              # Register scenarios here
+  utils/
+    sceneTiming.ts          # Auto-computes frame durations from scene content
+    makeEmojiAvatar.ts      # Generates circular emoji avatar images
+  styles/
+    WhatsAppTheme.ts        # Colors, spacing constants
+  config/
+    constants.ts            # Scale factor, frame timing constants
+  Root.tsx                  # Auto-registers one Remotion composition per scenario
+  index.ts                  # Remotion entry point
+generateScenario.ts         # AI scenario generator script
 ```
-
----
-
-## Video Structure
-
-| Act | Time | Content |
-|-----|------|---------|
-| Act 1 | 0–3.5s | Chat list with staggered animation, tap on "Big Mike 🍾" |
-| Act 2 | ~3.7s–30s | Budget Bot conversation — user asks about bottles, bot roasts spending history |
-| Act 3 | 30s–40s | Back to Big Mike's chat, user declines responsibly, Big Mike says "...bro" |
-| Outro | 40s–45s | Fade to black |
-
----
-
-## Design
-
-- **Background:** `#0a0a0a` (near-black)
-- **Sent bubbles:** `#005c4b` (dark green, WhatsApp-accurate)
-- **Received bubbles:** `#1f2c34` (dark grey)
-- **Font:** `-apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif`
-- **Status bar:** 9:41 (classic Apple demo time)
-- All animations use Remotion's `spring()` and `interpolate()` — no CSS transitions
-
----
-
-## Generating New Scenarios (AI-Powered)
-
-The `generateScenario.ts` script calls the Claude API to generate a brand-new scenario for any spending topic, then overwrites `src/data/scenario.ts`.
-
-**Requirements:** An Anthropic API key.
-
-```bash
-# Install ts-node if not already present (it's in devDependencies)
-npm install
-
-# Generate a new scenario
-ANTHROPIC_API_KEY=sk-ant-... npx ts-node --project tsconfig.scripts.json generateScenario.ts "sneaker drop"
-ANTHROPIC_API_KEY=sk-ant-... npx ts-node --project tsconfig.scripts.json generateScenario.ts "flight to miami"
-ANTHROPIC_API_KEY=sk-ant-... npx ts-node --project tsconfig.scripts.json generateScenario.ts "dinner date"
-
-# Then render the new video
-npx remotion render src/index.ts BudgetBotVideo --output out/video.mp4
-```
-
-**Model override:**
-```bash
-MODEL=claude-sonnet-4-6 ANTHROPIC_API_KEY=sk-ant-... npx ts-node --project tsconfig.scripts.json generateScenario.ts "concert tickets"
-```
-
----
-
-## Customizing a Scenario Manually
-
-Edit `src/data/scenario.ts` to change the copy, contacts, and timing. The `Scenario` type is fully documented there — swap it in to produce a different video without touching any component code.
-
----
 
 ## Dependencies
 
@@ -115,8 +66,7 @@ Edit `src/data/scenario.ts` to change the copy, contacts, and timing. The `Scena
 |---------|---------|---------|
 | `remotion` | 4.0.290 | Core rendering engine |
 | `@remotion/cli` | 4.0.290 | CLI tools (preview, render) |
-| `@remotion/player` | 4.0.290 | Browser player component |
 | `react` / `react-dom` | 18.3.1 | Required by Remotion |
 | `@anthropic-ai/sdk` | ^0.53.0 | AI scenario generation |
 | `typescript` | 5.4.5 | Type safety |
-| `ts-node` | ^10.9.2 | Run TypeScript scripts directly |
+| `ts-node` | ^10.9.2 | Run generator script directly |
