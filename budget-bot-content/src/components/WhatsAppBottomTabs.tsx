@@ -10,7 +10,7 @@ export interface WhatsAppBottomTabsProps {
   onTabChange?: (tab: TabKey) => void;
 }
 
-const GREEN = "#25d366";
+const GREEN = "#1dab61";
 const DARK = "#111820";
 const ACTIVE_BG = "#d9ffd6";
 

@@ -37,7 +37,7 @@ export function WhatsAppComposer({
 
       <style>{`
         .waComposer {
-          --wa-green: #25d366;
+          --wa-green: #1dab61;
           --wa-gray: #586069;
           --wa-bg-line: rgba(198, 184, 162, 0.26);
           width: 100%;

@@ -8,7 +8,7 @@ export const WA = {
   bgBubbleSent:      '#D9FDD3',
   bgBubbleReceived:  '#ffffff',
   bgSearchBar:       '#f0f2f5',
-  bgFilterActive:    '#25d366',
+  bgFilterActive:    '#1dab61',
   bgFilterInactive:  'transparent',
 
   // Text
@@ -18,7 +18,7 @@ export const WA = {
   textPlaceholder:'#8696a0',
 
   // Accent
-  green:    '#25d366',
+  green:    '#1dab61',
   blue:     '#34b7f1',
 
   // Avatar initials colors (per contact letter)
