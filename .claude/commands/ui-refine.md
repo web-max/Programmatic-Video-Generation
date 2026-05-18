@@ -30,13 +30,27 @@ Read `/tmp/current_still.png` with the Read tool to visually inspect.
 
 ### STEP 2 — Measure the target region
 Use the region coordinates from the table below. Run `/pixel-measure` or directly:
+
+**Full region comparison (JSON output, sorted by MAE):**
 ```bash
 python3 /home/user/Programmatic-Video-Generation/.claude/scripts/compare_frames.py \
-  <ref_image> /tmp/current_still.png \
-  --region <x> <y> <w> <h> \
-  --output /tmp/region_diff.png --report
+  compare <ref_image> /tmp/current_still.png \
+  --diff-output /tmp/region_diff.png \
+  --regions <label>,<x>,<y>,<w>,<h>
 ```
 Read `/tmp/region_diff.png`.
+
+**Sample exact pixel colors:**
+```bash
+python3 /home/user/Programmatic-Video-Generation/.claude/scripts/compare_frames.py \
+  sample /tmp/current_still.png <x>,<y> <x2>,<y2>
+```
+
+**Find where a specific color lives (e.g., to locate the WhatsApp green):**
+```bash
+python3 /home/user/Programmatic-Video-Generation/.claude/scripts/compare_frames.py \
+  find-color /tmp/current_still.png '#25D366' --tolerance 20
+```
 
 Also sample specific key pixels:
 ```bash

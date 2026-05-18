@@ -1,268 +1,216 @@
 #!/usr/bin/env python3
 """
-Pixel-level frame comparison tool.
-Compares a reference image against a generated image and reports numerical differences.
-
-Usage:
-  python3 compare_frames.py <ref.png> <gen.png> [--output diff.png] [--region x y w h] [--report]
+Precision frame comparison tool for WhatsApp UI testing.
+Compares reference frames against generated frames at pixel level.
 """
+
 import sys
-import argparse
 import json
-import math
-
-def load_image_raw(path):
-    """Load PNG as raw pixel array without PIL — uses stdlib only."""
-    import zlib, struct
-    with open(path, 'rb') as f:
-        data = f.read()
-
-    if data[:8] != b'\x89PNG\r\n\x1a\n':
-        raise ValueError(f"Not a PNG file: {path}")
-
-    chunks = {}
-    i = 8
-    while i < len(data):
-        length = struct.unpack('>I', data[i:i+4])[0]
-        chunk_type = data[i+4:i+8].decode('ascii')
-        chunk_data = data[i+8:i+8+length]
-        if chunk_type not in chunks:
-            chunks[chunk_type] = []
-        chunks[chunk_type].append(chunk_data)
-        i += 12 + length
-
-    ihdr = chunks['IHDR'][0]
-    width = struct.unpack('>I', ihdr[0:4])[0]
-    height = struct.unpack('>I', ihdr[4:8])[0]
-    bit_depth = ihdr[8]
-    color_type = ihdr[9]
-
-    raw = zlib.decompress(b''.join(chunks['IDAT']))
-
-    if color_type == 2:  # RGB
-        channels = 3
-    elif color_type == 6:  # RGBA
-        channels = 4
-    else:
-        raise ValueError(f"Unsupported color type: {color_type}")
-
-    stride = width * channels + 1
-    pixels = []
-
-    for y in range(height):
-        filter_byte = raw[y * stride]
-        row_raw = list(raw[y * stride + 1: (y + 1) * stride])
-
-        if filter_byte == 0:
-            row = row_raw
-        elif filter_byte == 1:  # Sub
-            row = list(row_raw)
-            for x in range(channels, len(row)):
-                row[x] = (row[x] + row[x - channels]) % 256
-        elif filter_byte == 2:  # Up
-            if y == 0:
-                row = row_raw
-            else:
-                prev = pixels[y - 1]
-                row = [(row_raw[x] + prev[x]) % 256 for x in range(len(row_raw))]
-        elif filter_byte == 3:  # Average
-            row = list(row_raw)
-            prev = pixels[y - 1] if y > 0 else [0] * len(row)
-            for x in range(len(row)):
-                a = row[x - channels] if x >= channels else 0
-                b = prev[x]
-                row[x] = (row_raw[x] + (a + b) // 2) % 256
-        elif filter_byte == 4:  # Paeth
-            row = list(row_raw)
-            prev = pixels[y - 1] if y > 0 else [0] * len(row)
-            for x in range(len(row)):
-                a = row[x - channels] if x >= channels else 0
-                b = prev[x]
-                c = prev[x - channels] if x >= channels else 0
-                pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
-                pr = a if pa <= pb and pa <= pc else (b if pb <= pc else c)
-                row[x] = (row_raw[x] + pr) % 256
-        else:
-            row = row_raw
-
-        pixels.append(row)
-
-    return width, height, channels, pixels
+import argparse
+import numpy as np
+from PIL import Image, ImageDraw
+from pathlib import Path
 
 
-def try_load_with_pil(path):
-    """Try PIL first (faster), fall back to stdlib."""
-    try:
-        from PIL import Image
-        import array
-        img = Image.open(path).convert('RGB')
-        w, h = img.size
-        px = list(img.getdata())
-        pixels = []
-        for y in range(h):
-            row = []
-            for x in range(w):
-                r, g, b = px[y * w + x]
-                row.extend([r, g, b])
-            pixels.append(row)
-        return w, h, 3, pixels
-    except ImportError:
-        return load_image_raw(path)
+def hex_to_rgb(hex_color):
+    hex_color = hex_color.lstrip('#')
+    return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
 
 
-def get_pixel(pixels, channels, x, y):
-    row = pixels[y]
-    i = x * channels
-    return row[i], row[i+1], row[i+2]
+def rgb_to_hex(r, g, b):
+    return f'#{int(r):02x}{int(g):02x}{int(b):02x}'
 
 
-def compare_region(ref_pixels, gen_pixels, ref_ch, gen_ch, x, y, w, h):
-    total_delta = 0
-    max_delta = 0
-    count = 0
-    channel_sums_ref = [0, 0, 0]
-    channel_sums_gen = [0, 0, 0]
+def sample_pixel(img_array, x, y):
+    """Get exact RGB at coordinate."""
+    h, w = img_array.shape[:2]
+    x, y = max(0, min(x, w-1)), max(0, min(y, h-1))
+    r, g, b = img_array[y, x, :3]
+    return {'x': x, 'y': y, 'hex': rgb_to_hex(r, g, b), 'rgb': [int(r), int(g), int(b)]}
 
-    for py in range(y, y + h):
-        for px in range(x, x + w):
-            rr, rg, rb = get_pixel(ref_pixels, ref_ch, px, py)
-            gr, gg, gb = get_pixel(gen_pixels, gen_ch, px, py)
 
-            dr, dg, db = abs(rr - gr), abs(rg - gg), abs(rb - gb)
-            pixel_delta = (dr + dg + db) / 3.0
-            euclidean = math.sqrt(dr**2 + dg**2 + db**2)
-
-            total_delta += pixel_delta
-            if euclidean > max_delta:
-                max_delta = euclidean
-            count += 1
-
-            channel_sums_ref[0] += rr
-            channel_sums_ref[1] += rg
-            channel_sums_ref[2] += rb
-            channel_sums_gen[0] += gr
-            channel_sums_gen[1] += gg
-            channel_sums_gen[2] += gb
-
-    mae = total_delta / count if count > 0 else 0
-    ref_avg = [s / count for s in channel_sums_ref]
-    gen_avg = [s / count for s in channel_sums_gen]
-
+def sample_region_avg(img_array, x, y, w, h, label=''):
+    """Get average color of a rectangular region."""
+    region = img_array[y:y+h, x:x+w, :3]
+    avg = region.mean(axis=(0, 1))
     return {
-        'mae': round(mae, 2),
-        'max_delta_euclidean': round(max_delta, 2),
-        'ref_avg_rgb': [round(v) for v in ref_avg],
-        'gen_avg_rgb': [round(v) for v in gen_avg],
-        'ref_avg_hex': '#{:02x}{:02x}{:02x}'.format(*[round(v) for v in ref_avg]),
-        'gen_avg_hex': '#{:02x}{:02x}{:02x}'.format(*[round(v) for v in gen_avg]),
-        'pixels_compared': count,
+        'label': label,
+        'bounds': {'x': x, 'y': y, 'w': w, 'h': h},
+        'avg_hex': rgb_to_hex(*avg),
+        'avg_rgb': [float(avg[0]), float(avg[1]), float(avg[2])],
+        'std_rgb': region.std(axis=(0, 1)).tolist(),
     }
 
 
-def write_diff_image(ref_pixels, gen_pixels, ref_w, ref_h, ref_ch, gen_ch, output_path, region=None):
-    """Write a diff image where bright colors = high error."""
-    try:
-        from PIL import Image
-        import numpy as np
-
-        ref_img = Image.open(ref_pixels if isinstance(ref_pixels, str) else '/tmp/_ref_tmp.png').convert('RGB')
-        gen_img = Image.open(gen_pixels if isinstance(gen_pixels, str) else '/tmp/_gen_tmp.png').convert('RGB')
-
-        ref_arr = np.array(ref_img).astype(int)
-        gen_arr = np.array(gen_img).astype(int)
-
-        diff = np.abs(ref_arr - gen_arr)
-        diff_scaled = (diff * 3).clip(0, 255).astype('uint8')
-
-        diff_img = Image.fromarray(diff_scaled)
-        diff_img.save(output_path)
-        return True
-    except Exception as e:
-        return False
-
-
-WHATSAPP_REGIONS = {
-    'status_bar':   (0,    0,    1080, 80),
-    'header':       (0,    80,   1080, 130),
-    'search_bar':   (20,   220,  1040, 80),
-    'chat_row_1':   (0,    310,  1080, 130),
-    'chat_row_2':   (0,    440,  1080, 130),
-    'bottom_tabs':  (0,    1750, 1080, 170),
-    'composer':     (0,    1630, 1080, 120),
-    'wallpaper':    (0,    420,  1080, 1200),
-}
+def compare_regions(ref_array, gen_array, regions):
+    """Compare specific named regions between two images."""
+    results = []
+    for label, (x, y, w, h) in regions.items():
+        ref_r = ref_array[y:y+h, x:x+w, :3].astype(float)
+        gen_r = gen_array[y:y+h, x:x+w, :3].astype(float)
+        diff = np.abs(ref_r - gen_r)
+        mae = diff.mean()
+        max_diff = diff.max()
+        ref_avg = ref_r.mean(axis=(0, 1))
+        gen_avg = gen_r.mean(axis=(0, 1))
+        results.append({
+            'label': label,
+            'bounds': {'x': x, 'y': y, 'w': w, 'h': h},
+            'mae': round(float(mae), 2),
+            'max_channel_diff': round(float(max_diff), 2),
+            'ref_avg_color': rgb_to_hex(*ref_avg),
+            'gen_avg_color': rgb_to_hex(*gen_avg),
+            'color_delta_rgb': [round(float(gen_avg[i] - ref_avg[i]), 1) for i in range(3)],
+        })
+    results.sort(key=lambda r: r['mae'], reverse=True)
+    return results
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('ref', help='Reference image path')
-    parser.add_argument('gen', help='Generated image path')
-    parser.add_argument('--output', help='Output diff image path')
-    parser.add_argument('--region', nargs=4, type=int, metavar=('X', 'Y', 'W', 'H'))
-    parser.add_argument('--report', action='store_true', help='Print full region report')
-    parser.add_argument('--json', action='store_true', help='Output as JSON')
-    args = parser.parse_args()
+def generate_diff_image(ref_array, gen_array, output_path, amplify=4):
+    """Generate amplified diff image highlighting differences."""
+    diff = np.abs(ref_array[:, :, :3].astype(int) - gen_array[:, :, :3].astype(int))
+    diff_amplified = np.clip(diff * amplify, 0, 255).astype(np.uint8)
+    diff_img = Image.fromarray(diff_amplified)
+    diff_img.save(output_path)
+    return str(output_path)
 
-    ref_w, ref_h, ref_ch, ref_px = try_load_with_pil(args.ref)
-    gen_w, gen_h, gen_ch, gen_px = try_load_with_pil(args.gen)
 
-    results = {}
+def measure_element_bounds(img_array, target_color_hex, tolerance=20):
+    """Find bounding box of pixels matching a target color."""
+    tr, tg, tb = hex_to_rgb(target_color_hex)
+    r, g, b = img_array[:, :, 0], img_array[:, :, 1], img_array[:, :, 2]
+    mask = (
+        (np.abs(r.astype(int) - tr) <= tolerance) &
+        (np.abs(g.astype(int) - tg) <= tolerance) &
+        (np.abs(b.astype(int) - tb) <= tolerance)
+    )
+    ys, xs = np.where(mask)
+    if len(xs) == 0:
+        return None
+    return {
+        'x_min': int(xs.min()), 'x_max': int(xs.max()),
+        'y_min': int(ys.min()), 'y_max': int(ys.max()),
+        'width': int(xs.max() - xs.min()),
+        'height': int(ys.max() - ys.min()),
+        'pixel_count': int(len(xs)),
+    }
 
-    if args.region:
-        x, y, w, h = args.region
-        w = min(w, ref_w - x, gen_w - x)
-        h = min(h, ref_h - y, gen_h - y)
-        results['custom_region'] = compare_region(ref_px, gen_px, ref_ch, gen_ch, x, y, w, h)
 
-    if args.report:
-        for name, (x, y, w, h) in WHATSAPP_REGIONS.items():
-            if x + w <= min(ref_w, gen_w) and y + h <= min(ref_h, gen_h):
-                results[name] = compare_region(ref_px, gen_px, ref_ch, gen_ch, x, y, w, h)
+def full_comparison(ref_path, gen_path, regions=None, diff_output=None):
+    """Full comparison report between reference and generated images."""
+    ref_img = Image.open(ref_path).convert('RGB')
+    gen_img = Image.open(gen_path).convert('RGB')
 
-    if not results:
-        w = min(ref_w, gen_w)
-        h = min(ref_h, gen_h)
-        results['full_frame'] = compare_region(ref_px, gen_px, ref_ch, gen_ch, 0, 0, w, h)
+    # Resize gen to match ref if needed
+    if ref_img.size != gen_img.size:
+        gen_img = gen_img.resize(ref_img.size, Image.LANCZOS)
 
-    if args.json:
-        print(json.dumps(results, indent=2))
-    else:
-        print(f"\nFRAME COMPARISON REPORT")
-        print(f"Reference: {args.ref} ({ref_w}x{ref_h})")
-        print(f"Generated: {args.gen} ({gen_w}x{gen_h})")
-        print()
+    ref = np.array(ref_img)
+    gen = np.array(gen_img)
 
-        sorted_regions = sorted(results.items(), key=lambda kv: kv[1]['mae'], reverse=True)
+    diff = np.abs(ref.astype(int) - gen.astype(int))
+    overall_mae = float(diff.mean())
+    overall_max = float(diff.max())
 
-        for name, data in sorted_regions:
-            mae = data['mae']
-            severity = "PASS" if mae < 8 else ("WARN" if mae < 20 else "FAIL")
-            bar = "#" * min(40, int(mae))
-            print(f"  [{severity:4s}] {name:<20s} MAE={mae:6.2f}  {bar}")
-            print(f"         ref={data['ref_avg_hex']}  gen={data['gen_avg_hex']}  "
-                  f"max_delta={data['max_delta_euclidean']:.1f}")
+    # Find top-10 worst rows/cols
+    row_mae = diff.mean(axis=(1, 2))
+    col_mae = diff.mean(axis=(0, 2))
+    worst_rows = np.argsort(row_mae)[-10:][::-1].tolist()
+    worst_cols = np.argsort(col_mae)[-10:][::-1].tolist()
 
-        if sorted_regions:
-            worst = sorted_regions[0]
-            print(f"\nWorst region: {worst[0]} (MAE={worst[1]['mae']:.2f})")
+    result = {
+        'ref_size': list(ref_img.size),
+        'gen_size': list(gen_img.size),
+        'overall_mae': round(overall_mae, 2),
+        'overall_max_diff': round(overall_max, 2),
+        'worst_rows_y': worst_rows,
+        'worst_cols_x': worst_cols,
+        'region_comparisons': [],
+    }
 
-    if args.output:
-        try:
-            from PIL import Image
-            import numpy as np
-            ref_img = Image.open(args.ref).convert('RGB')
-            gen_img = Image.open(args.gen).convert('RGB')
-            ref_arr = np.array(ref_img).astype(int)
-            gen_arr = np.array(gen_img).astype(int)
-            h_min = min(ref_arr.shape[0], gen_arr.shape[0])
-            w_min = min(ref_arr.shape[1], gen_arr.shape[1])
-            diff = np.abs(ref_arr[:h_min, :w_min] - gen_arr[:h_min, :w_min])
-            diff_scaled = (diff * 3).clip(0, 255).astype('uint8')
-            Image.fromarray(diff_scaled).save(args.output)
-            print(f"\nDiff image saved: {args.output}")
-        except ImportError:
-            print("\n(PIL not available — diff image not written)")
+    if regions:
+        result['region_comparisons'] = compare_regions(ref, gen, regions)
+
+    if diff_output:
+        result['diff_image'] = generate_diff_image(ref, gen, diff_output)
+
+    return result
+
+
+def cmd_compare(args):
+    regions = {}
+    if args.regions:
+        for r in args.regions:
+            name, x, y, w, h = r.split(',')
+            regions[name] = (int(x), int(y), int(w), int(h))
+
+    diff_out = args.diff_output or (Path(args.gen).parent / 'diff.png')
+    result = full_comparison(args.ref, args.gen, regions or None, diff_out)
+    print(json.dumps(result, indent=2))
+
+
+def cmd_sample(args):
+    img = np.array(Image.open(args.image).convert('RGB'))
+    results = []
+    for coord in args.coords:
+        x, y = map(int, coord.split(','))
+        results.append(sample_pixel(img, x, y))
+    print(json.dumps(results, indent=2))
+
+
+def cmd_region(args):
+    img = np.array(Image.open(args.image).convert('RGB'))
+    regions = {}
+    for r in args.regions:
+        name, x, y, w, h = r.split(',')
+        regions[name] = (int(x), int(y), int(w), int(h))
+    results = []
+    for label, (x, y, w, h) in regions.items():
+        results.append(sample_region_avg(img, x, y, w, h, label))
+    print(json.dumps(results, indent=2))
+
+
+def cmd_find_color(args):
+    img = np.array(Image.open(args.image).convert('RGB'))
+    result = measure_element_bounds(img, args.color, args.tolerance)
+    print(json.dumps(result, indent=2))
 
 
 if __name__ == '__main__':
-    main()
+    parser = argparse.ArgumentParser(description='Precision frame comparison tool')
+    sub = parser.add_subparsers(dest='cmd')
+
+    # compare: full image comparison
+    p_compare = sub.add_parser('compare', help='Compare ref vs generated image')
+    p_compare.add_argument('ref', help='Reference image path')
+    p_compare.add_argument('gen', help='Generated image path')
+    p_compare.add_argument('--regions', nargs='+', metavar='NAME,X,Y,W,H',
+                           help='Named regions to compare (e.g. header,0,0,1080,120)')
+    p_compare.add_argument('--diff-output', help='Path to save diff image')
+    p_compare.set_defaults(func=cmd_compare)
+
+    # sample: get exact pixel colors
+    p_sample = sub.add_parser('sample', help='Sample pixel colors at coordinates')
+    p_sample.add_argument('image', help='Image path')
+    p_sample.add_argument('coords', nargs='+', metavar='X,Y', help='Pixel coordinates')
+    p_sample.set_defaults(func=cmd_sample)
+
+    # region: get average color of a region
+    p_region = sub.add_parser('region', help='Get average color of named regions')
+    p_region.add_argument('image', help='Image path')
+    p_region.add_argument('regions', nargs='+', metavar='NAME,X,Y,W,H')
+    p_region.set_defaults(func=cmd_region)
+
+    # find-color: find bounds of a specific color in image
+    p_find = sub.add_parser('find-color', help='Find bounds of a color in image')
+    p_find.add_argument('image', help='Image path')
+    p_find.add_argument('color', help='Target hex color (e.g. #25D366)')
+    p_find.add_argument('--tolerance', type=int, default=20,
+                        help='Per-channel tolerance (default 20)')
+    p_find.set_defaults(func=cmd_find_color)
+
+    args = parser.parse_args()
+    if not args.cmd:
+        parser.print_help()
+        sys.exit(1)
+    args.func(args)

@@ -24,8 +24,10 @@ ffmpeg -accurate_seek -ss <timestamp> -i <video_path> -vframes 1 -q:v 1 /tmp/fra
 4. **If extracting both**, also generate a pixel diff:
 ```bash
 python3 /home/user/Programmatic-Video-Generation/.claude/scripts/compare_frames.py \
-  /tmp/frame_ref_<t>.png /tmp/frame_out_<t>.png \
-  --output /tmp/diff_<t>.png --report
+  compare /tmp/frame_ref_<t>.png /tmp/frame_out_<t>.png \
+  --diff-output /tmp/diff_<t>.png \
+  --regions status_bar,0,0,1080,80 header,0,80,1080,130 search_bar,20,220,1040,80 \
+            chat_rows,0,310,1080,650 bottom_tabs,0,1750,1080,170
 ```
 Then Read the diff image.
 

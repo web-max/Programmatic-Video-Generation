@@ -44,8 +44,11 @@ done
 Then for each timestamp pair, run the comparison script:
 ```bash
 python3 /home/user/Programmatic-Video-Generation/.claude/scripts/compare_frames.py \
-  /tmp/ref_<T>s.png /tmp/rendered_<T>s.png \
-  --output /tmp/diff_<T>s.png --report
+  compare /tmp/ref_<T>s.png /tmp/rendered_<T>s.png \
+  --diff-output /tmp/diff_<T>s.png \
+  --regions status_bar,0,0,1080,80 header,0,80,1080,130 search_bar,20,220,1040,80 \
+            chat_rows,0,310,1080,650 bottom_tabs,0,1750,1080,170 \
+            bubble,560,700,480,200 composer,0,1630,1080,120
 ```
 Read each diff image — bright red/pink areas = highest pixel error.
 
