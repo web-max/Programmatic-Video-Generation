@@ -90,12 +90,18 @@ export const ChatScreenLayout: React.FC<ChatScreenLayoutProps> = ({
         flexDirection: 'column',
         justifyContent: 'flex-end',
         padding: '12px 0',
-        ...(backgroundImage
-          ? { backgroundImage, backgroundSize: 'cover', backgroundPosition: 'center' }
-          : {}),
+        position: 'relative',
       }}
     >
-      <div style={{ transform: `translateY(-${scrollOffset}px)` }}>
+      {/* Wallpaper layer with contrast boost — separate from content so filter doesn't tint bubbles */}
+      {backgroundImage && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 0,
+          backgroundImage, backgroundSize: 'cover', backgroundPosition: 'center',
+          filter: 'contrast(1.18) saturate(1.08)',
+        }} />
+      )}
+      <div style={{ position: 'relative', zIndex: 1, transform: `translateY(-${scrollOffset}px)` }}>
         {children}
       </div>
     </div>

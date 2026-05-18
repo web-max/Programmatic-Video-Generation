@@ -150,7 +150,7 @@ export default function WhatsAppBottomTabs({
           height: 330px;
           box-sizing: border-box;
           display: grid;
-          grid-template-columns: 1fr 1fr 1.18fr 1fr;
+          grid-template-columns: 1.08fr 1fr 1.24fr 0.92fr;
           align-items: start;
           background: #fff;
           border-top: 2px solid #e6e8e8;

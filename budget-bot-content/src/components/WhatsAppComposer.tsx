@@ -89,8 +89,8 @@ export function WhatsAppComposer({
         .waComposer__attach { margin-left: auto; width: 73px; height: 83px; }
         .waComposer__camera { margin-left: 64px; width: 86px; height: 83px; }
         .waComposer__iconButton svg { width: 100%; height: 100%; display: block; }
-        .waComposer__mic { position: relative; z-index: 1; flex: 0 0 auto; width: 193px; height: 193px; border: 0; border-radius: 999px; background: var(--wa-green); color: #fff; display: grid; place-items: center; box-shadow: 0 7px 10px rgba(0,0,0,0.18); cursor: pointer; }
-        .waComposer__mic svg { width: 92px; height: 92px; transform: translateY(2px); }
+        .waComposer__mic { position: relative; z-index: 1; flex: 0 0 auto; width: 172px; height: 172px; border: 0; border-radius: 999px; background: var(--wa-green); color: #fff; display: grid; place-items: center; box-shadow: 0 5px 8px rgba(0,0,0,0.16); cursor: pointer; }
+        .waComposer__mic svg { width: 82px; height: 82px; transform: translateY(2px); }
         @media (max-width: 700px) {
           .waComposer { gap: 1.6vw; padding: 2vw 1.2vw 1.3vw 1.3vw; }
           .waComposer__field { height: 12.04vw; padding-left: 3.25vw; padding-right: 2.86vw; border-radius: 5.86vw; }

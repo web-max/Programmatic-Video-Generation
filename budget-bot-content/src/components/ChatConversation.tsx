@@ -47,11 +47,14 @@ export const ChatConversation: React.FC<ChatConversationProps> = ({
     interpolate(exitProgress, [0, 1], [1, 0]);
   const translateX = interpolate(enterProgress, [0, 1], [60, 0]);
 
-  // Per-message start frames
+  // Per-message start frames with deterministic micro-jitter (0-2 frames per message)
+  // Simulates Android OS scheduler variance — makes timing feel organic, not robotic.
+  const JITTER = [0, 2, 1, 0, 2, 1, 2, 0, 1, 2];
   const messageStartFrames: number[] = [];
   let cursor = enterFrame + 20;
-  for (const msg of messages) {
-    messageStartFrames.push(cursor);
+  for (let i = 0; i < messages.length; i++) {
+    const msg = messages[i];
+    messageStartFrames.push(cursor + JITTER[i % JITTER.length]);
     const linesCount = msg.lines.filter((l) => l !== '').length;
     const revealFrames = msg.role === 'bot' ? FRAMES_PER_LINE_INSTANT : linesCount * FRAMES_PER_LINE_USER;
     cursor += msg.delayFrames + revealFrames + 20;

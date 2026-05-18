@@ -5,7 +5,7 @@ import { EXIT_FADE_FRAMES } from '../config/constants';
  * Single shared spring config for all enter animations
  * (bubble pop-in, screen slide-in, list item stagger).
  */
-export const ENTER_SPRING = { damping: 20, stiffness: 200, mass: 0.8 } as const;
+export const ENTER_SPRING = { damping: 12, stiffness: 180, mass: 1.1 } as const;
 
 /**
  * Returns a 0→1 progress value representing how far into an exit fade we are.

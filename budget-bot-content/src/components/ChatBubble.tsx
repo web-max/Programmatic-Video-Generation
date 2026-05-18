@@ -11,8 +11,8 @@ interface ChatBubbleProps {
   time?: string;
 }
 
-const RADIUS = 28;
-const TAIL_RADIUS = 10;
+const RADIUS = 34;
+const TAIL_RADIUS = 6;
 // Inline spacer width appended to the last visible line so the absolute timestamp never overlaps.
 // Incoming: time_text(~128) + right_pos(12) - right_pad(26) = 114 → 150
 // Outgoing: adds ticks(52) + tick_gap(4) → 114 + 56 = 170 → 200
@@ -35,7 +35,7 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
     config: ENTER_SPRING,
   });
 
-  const scale = interpolate(enterProgress, [0, 1], [0.88, 1]);
+  const scale = interpolate(enterProgress, [0, 1], [0.93, 1]);
   const opacity = interpolate(enterProgress, [0, 1], [0, 1]);
 
   const isUser = role === 'user';

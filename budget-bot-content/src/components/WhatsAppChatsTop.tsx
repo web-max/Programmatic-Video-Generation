@@ -101,8 +101,8 @@ export default function WhatsAppChatsTop({
 
         .wa-search {
           margin: 64px 48px 0;
-          height: 192px;
-          border-radius: 96px;
+          height: 170px;
+          border-radius: 78px;
           background: ${LIGHT_BG};
           display: flex;
           align-items: center;
