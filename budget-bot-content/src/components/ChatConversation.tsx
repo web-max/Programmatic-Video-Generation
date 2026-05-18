@@ -3,7 +3,7 @@ import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
 import { ChatBubble } from './ChatBubble';
 import { TypingIndicator } from './TypingIndicator';
 import { ChatScreenLayout } from './ChatScreenLayout';
-import { Message } from '../data/scenario';
+import { Message } from '../data/types';
 import { ENTER_SPRING, makeExitFade } from '../utils/animations';
 import { FRAMES_PER_LINE_INSTANT, FRAMES_PER_LINE_USER } from '../config/constants';
 

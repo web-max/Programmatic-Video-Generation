@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCurrentFrame, interpolate, spring, useVideoConfig } from 'remotion';
-import { ChatListItem } from '../data/scenario';
+import { ChatListItem } from '../data/types';
 import { WA } from '../styles/WhatsAppTheme';
 import WhatsAppChatsTop from './WhatsAppChatsTop';
 import WhatsAppBottomTabs from './WhatsAppBottomTabs';
