@@ -25,7 +25,6 @@ export type Scene =
       contactName: string;
       contactAvatarSrc?: string;
       messages: Message[];
-      typingOffset?: number;
       typingDuration?: number;
     }
   | {

@@ -57,7 +57,6 @@ export const VideoComposition: React.FC<VideoCompositionProps> = ({ scenario }) 
                   messages={scene.messages}
                   enterFrame={startFrame}
                   exitFrame={startFrame + duration}
-                  typingFrame={startFrame + (scene.typingOffset ?? 45)}
                   typingDuration={scene.typingDuration ?? 18}
                 />
               </div>

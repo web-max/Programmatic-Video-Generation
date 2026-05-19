@@ -1,6 +1,7 @@
 import React from 'react';
 import { useCurrentFrame, interpolate } from 'remotion';
 import { ChatBubble } from './ChatBubble';
+import { TypingIndicator } from './TypingIndicator';
 import { ChatScreenLayout } from './ChatScreenLayout';
 import { makeExitFade } from '../utils/animations';
 import { FRAMES_PER_LINE_SCENE } from '../config/constants';
@@ -44,6 +45,11 @@ export const QuickReplyScreen: React.FC<QuickReplyScreenProps> = ({
   const exitProgress = exitFrame != null ? makeExitFade(frame, exitFrame) : 0;
   const opacity = enterOpacity * interpolate(exitProgress, [0, 1], [1, 0]);
 
+  // Show typing indicator between user reply and contact response.
+  // 8-frame pause after user sends feels natural; skip if gap < 12 frames (too brief to register).
+  const gap = theirReplyFrame - replyFrame;
+  const showTyping = gap >= 12 && frame >= replyFrame + 8 && frame < theirReplyFrame;
+
   return (
     <ChatScreenLayout
       contactName={contactName}
@@ -66,6 +72,7 @@ export const QuickReplyScreen: React.FC<QuickReplyScreenProps> = ({
           time={replyTime}
         />
       )}
+      <TypingIndicator visible={showTyping} />
       {frame >= theirReplyFrame && (
         <ChatBubble
           role="bot"

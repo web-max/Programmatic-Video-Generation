@@ -44,8 +44,7 @@ export const lvBag: Scenario = {
       type: 'conversation',
       contactName: '💰 Budget Bot',
       contactAvatarSrc: makeEmojiAvatar('💰', '#1dab61'),
-      typingOffset: 45,
-      typingDuration: 22,
+      typingDuration: 65,
       messages: [
         {
           role: 'user',

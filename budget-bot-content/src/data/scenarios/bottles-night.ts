@@ -23,7 +23,6 @@ export const bottlesNight: Scenario = {
       type: 'conversation',
       contactName: '💰 Budget Bot',
       contactAvatarSrc: makeEmojiAvatar('💰', '#1dab61'),
-      typingOffset: 45,
       typingDuration: 18,
       messages: [
         {
