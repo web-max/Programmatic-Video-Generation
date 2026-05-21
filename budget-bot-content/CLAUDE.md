@@ -1,129 +1,85 @@
-# CLAUDE.md — Project Guide for AI Agents
+# HyperFrames Composition Project
 
-## What this project is
+## Skills — USE THESE FIRST
 
-A Remotion project that renders short-form vertical videos (1080×1920, 30fps) of a phone screen showing WhatsApp-style chats. The "Budget Bot" concept is one scenario — the system is generic and can render any script that fits the scene types below.
+**Always invoke the relevant skill before writing or modifying compositions.** Skills encode framework-specific patterns (e.g., `window.__timelines` registration, `data-*` attribute semantics, shader-compatible CSS rules) that are NOT in generic web docs. Skipping them produces broken compositions.
 
-## How to add a new video scenario
+| Skill                      | Command                   | When to use                                                                                       |
+| -------------------------- | ------------------------- | ------------------------------------------------------------------------------------------------- |
+| **hyperframes**            | `/hyperframes`            | Creating or editing HTML compositions, captions, TTS, audio-reactive animation, marker highlights |
+| **hyperframes-cli**        | `/hyperframes-cli`        | Dev-loop CLI: init, lint, inspect, preview, render, doctor                                        |
+| **hyperframes-media**      | `/hyperframes-media`      | Asset preprocessing: tts (Kokoro), transcribe (Whisper), remove-background (u2net)                |
+| **hyperframes-registry**   | `/hyperframes-registry`   | Installing blocks and components via `hyperframes add`                                            |
+| **website-to-hyperframes** | `/website-to-hyperframes` | Capturing a URL and turning it into a video — full website-to-video pipeline                      |
+| **tailwind**               | `/tailwind`               | Tailwind v4 browser-runtime styles for projects created with `hyperframes init --tailwind`        |
+| **gsap**                   | `/gsap`                   | GSAP animations for HyperFrames — tweens, timelines, easing, performance                          |
+| **animejs**                | `/animejs`                | Anime.js animations registered on `window.__hfAnime`                                              |
+| **css-animations**         | `/css-animations`         | CSS keyframes that HyperFrames can pause and seek                                                 |
+| **lottie**                 | `/lottie`                 | `lottie-web` and dotLottie players registered on `window.__hfLottie`                              |
+| **three**                  | `/three`                  | Three.js scenes rendered from HyperFrames `hf-seek` events                                        |
+| **waapi**                  | `/waapi`                  | Web Animations API motion driven through `document.getAnimations()`                               |
 
-1. Create `src/data/scenarios/your-slug.ts` — export a `Scenario` object (see `bottles-night.ts` as the reference)
-2. Add it to `src/data/scenarios/index.ts` — one line: `import { yourScenario } from './your-slug'; export const scenarios = [..., yourScenario];`
-3. That's it. `Root.tsx` auto-registers it as a Remotion composition named `scenario.id`.
+> **Skills not available?** Ask the user to run `npx hyperframes skills` and restart their
+> agent session, or install manually: `npx skills add heygen-com/hyperframes`.
 
-**Never touch `VideoComposition.tsx` or `Root.tsx` when writing a new script.** All story content lives in the scenario file.
-
-## The Scenario type
-
-```ts
-interface Scenario {
-  id: string;          // becomes the Remotion composition ID and render target name
-  chatList: ChatListItem[];  // contacts shown on the homescreen
-  scenes: Scene[];     // ordered list of scenes — the video plays them in sequence
-}
-```
-
-`scenes` is a discriminated union. Valid types:
-
-### `chat-list`
-Shows the WhatsApp homescreen. Ends with a tap animation on `tapContact`.
-```ts
-{ type: 'chat-list', tapContact: string, duration: number }
-```
-`duration` is in frames (30fps). Tap animation starts 15 frames before the end.
-
-### `conversation`
-A full animated chat exchange with typing indicator. **Duration is auto-computed from message content** — do not specify it.
-```ts
-{
-  type: 'conversation',
-  contactName: string,
-  contactAvatarSrc?: string,   // use makeEmojiAvatar() or leave undefined
-  messages: Message[],
-  typingOffset?: number,       // frames after scene start to show typing indicator (default: 45)
-  typingDuration?: number,     // how long the typing indicator shows (default: 18)
-}
-```
-Each `Message`:
-```ts
-{ role: 'user' | 'bot', lines: string[], delayFrames: number, time?: string }
-```
-- Use `''` (empty string) in `lines` to add vertical spacing between paragraphs.
-- `delayFrames`: gap before this message appears after the previous one (20–60 typical).
-- Bot messages reveal instantly; user messages reveal line-by-line (10 frames/line).
-
-### `quick-reply`
-A brief 3-message exchange: contact's opener → user replies → contact responds. Good for resolution beats.
-```ts
-{
-  type: 'quick-reply',
-  contactName: string,
-  contactAvatarSrc?: string,
-  previewMessage: string,   // contact's existing message shown at top
-  userMessage: string,      // user's reply
-  contactResponse: string,  // contact's final response
-  duration: number,         // total frames for this scene
-  replyOffset?: number,     // frames after scene start for user reply to appear (default: 50)
-  responseOffset?: number,  // frames after scene start for contact response (default: 110)
-  times?: { preview?: string, reply?: string, response?: string },
-}
-```
-
-## Scene ordering
-
-Scenes play sequentially. Any order is valid:
-```ts
-scenes: [
-  { type: 'chat-list', tapContact: 'Jake 💸', duration: 105 },
-  { type: 'conversation', contactName: '💰 Budget Bot', messages: [...] },
-  { type: 'chat-list', tapContact: 'Jake 💸', duration: 60 },  // back to homescreen
-  { type: 'quick-reply', contactName: 'Jake 💸', ... },
-]
-```
-
-## Utilities
-
-### `makeEmojiAvatar(emoji, bgColor)`
-Generates a circular avatar image as a data URI. Used for bot and contact avatars.
-```ts
-import { makeEmojiAvatar } from '../../utils/makeEmojiAvatar';
-contactAvatarSrc: makeEmojiAvatar('💰', '#1dab61'),
-```
-
-### `computeTotalDuration(scenario)` / `computeSceneDuration(scene)`
-In `src/utils/sceneTiming.ts`. Used by `Root.tsx` to auto-calculate `durationInFrames` per composition. Do not call these from scenario files.
-
-## Design system
-
-- Design width: 1536px, scaled to 1080px render width via `SCALE = 1080/1536` (`src/config/constants.ts`)
-- WhatsApp colors and spacing live in `src/styles/WhatsAppTheme.ts`
-- All animations use Remotion `spring()` and `interpolate()` — no CSS transitions or keyframes
-
-## Render commands
+## Commands
 
 ```bash
-# Preview all compositions in browser
-npx remotion preview src/index.ts
-
-# Render a specific scenario by its id
-npx remotion render src/index.ts BottlesNight --output out/bottles-night.mp4
-
-# Render any other scenario
-npx remotion render src/index.ts YourScenarioId --output out/your-video.mp4
+npm run dev          # start the preview server (long-running — keep it alive in background)
+npm run check        # lint + validate + inspect
+npm run render       # render to MP4
+npm run publish      # publish and get a shareable link
+npx hyperframes lint --verbose  # include info-level findings
+npx hyperframes lint --json     # machine-readable output for CI
+npx hyperframes docs <topic> # reference docs in terminal
 ```
 
-## Dev composition
+> **`npm run dev` is a long-running server, not a one-shot command.** It blocks until stopped.
+> In Claude Code, always run it with `run_in_background: true`. Never run it as a foreground
+> command — it will time out and the server will die, breaking the browser preview.
 
-`BubbleWidthTest` is a diagnostic composition for verifying chat bubble max-width rendering. It is not a real video scenario — ignore it when working with content.
+## Documentation
 
-## Files to know
+**For quick reference**, use the local CLI docs command (no network required):
 
-| File | Purpose |
-|------|---------|
-| `src/data/types.ts` | All shared TypeScript interfaces (`Scenario`, `Scene`, `Message`, etc.) |
-| `src/data/scenarios/` | One file per video scenario — **this is where new content goes** |
-| `src/compositions/VideoComposition.tsx` | Generic scene runner — reads scenario, computes timeline, renders scenes |
-| `src/components/ChatList.tsx` | WhatsApp homescreen building block |
-| `src/components/ChatConversation.tsx` | Full animated conversation building block |
-| `src/components/QuickReplyScreen.tsx` | Brief 3-message exchange building block |
-| `src/utils/sceneTiming.ts` | Frame offset calculations |
-| `generateScenario.ts` | AI-powered scenario generator script |
+```bash
+npx hyperframes docs <topic>
+```
+
+Topics: `data-attributes`, `gsap`, `compositions`, `rendering`, `examples`, `troubleshooting`
+
+**For full documentation**, discover pages via the machine-readable index — do NOT guess URLs:
+
+```
+https://hyperframes.heygen.com/llms.txt
+```
+
+## Project Structure
+
+- `index.html` — main composition (root timeline)
+- `compositions/` — sub-compositions referenced via `data-composition-src`
+- `meta.json` — project metadata (id, name)
+- `transcript.json` — whisper word-level transcript (if generated)
+
+## Linting — ALWAYS RUN AFTER CHANGES
+
+After creating or editing any `.html` composition, **always** run the full check before considering the task complete:
+
+```bash
+npm run check
+```
+
+Fix all errors before presenting the result. Inspect warnings should be reviewed before rendering.
+
+## Key Rules
+
+1. Every timed element needs `data-start`, `data-duration`, and `data-track-index`
+2. Elements with timing **MUST** have `class="clip"` — the framework uses this for visibility control
+3. Timelines must be paused and registered on `window.__timelines`:
+   ```js
+   window.__timelines = window.__timelines || {};
+   window.__timelines["composition-id"] = gsap.timeline({ paused: true });
+   ```
+4. Videos use `muted` with a separate `<audio>` element for the audio track
+5. Sub-compositions use `data-composition-src="compositions/file.html"` to reference other HTML files
+6. Only deterministic logic — no `Date.now()`, no `Math.random()`, no network fetches
